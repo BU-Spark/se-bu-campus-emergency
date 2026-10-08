@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo/ui": "~57.0.22",
+    "@supabase/supabase-js": "^2.117.3",
     "expo": "~57.0.27",
     "expo-constants": "~57.0.21",
     "expo-device": "~57.0.2",
@@ -28,6 +29,7 @@
     "react-native-worklets": "0.10.1"
   },
   "devDependencies": {
+    "@testing-library/react-native": "^14.1.0",
     "@types/jest": "29.5.14",
     "@types/react": "~19.2.2",
     "eslint": "^9.0.0",
@@ -52,7 +54,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "typecheck": "tsc --noEmit",
-    "prepare": "cd .. && husky"
+    "prepare": "cd .. && husky",
+    "gen:types": "cd ../backend && npx supabase gen types typescript --linked --schema public > ../frontend/src/types/database.types.ts && cd ../frontend && prettier --write src/types/database.types.ts"
   },
   "private": true,
   "lint-staged": {

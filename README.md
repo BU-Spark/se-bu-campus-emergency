@@ -24,7 +24,10 @@ comes from existing BU emergency plans and protocols ([BU EHS Emergency Communic
 │   ├── src/app/       Screens (file-based routing via Expo Router)
 │   ├── src/components Reusable UI components
 │   ├── src/constants  Theme and shared constants
-│   ├── src/hooks      Custom React hooks
+│   ├── src/hooks      Custom React hooks (including data-loading hooks)
+│   ├── src/lib        Supabase client
+│   ├── src/services   Data access functions (queries to Supabase)
+│   ├── src/types      Database types generated from the Supabase schema
 │   └── assets/        Icons, splash screen, images
 ├── backend/           Supabase project
 │   └── supabase/
@@ -41,6 +44,16 @@ comes from existing BU emergency plans and protocols ([BU EHS Emergency Communic
 - The [Expo Go](https://expo.dev/go) app on an iOS or Android phone, or the iOS Simulator / Android Emulator
 - A free [Expo account](https://expo.dev/signup)
 
+### Configure environment variables
+
+```bash
+cd frontend
+cp .env.example .env
+```
+
+Open `frontend/.env` and set `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` to the project's publishable key
+(Supabase dashboard → Project Settings → API Keys). Never use the secret key in the app. `.env` is git-ignored.
+
 ### Run the app
 
 ```bash
@@ -56,13 +69,14 @@ blocks local connections (e.g. campus Wi-Fi), use `npx expo start --tunnel`.
 
 Run from `frontend/`:
 
-| Command                 | Description                      |
-| ----------------------- | -------------------------------- |
-| `npx expo start`        | Start the development server     |
-| `npm run lint`          | Lint and check formatting        |
-| `npm test`              | Run unit tests                   |
-| `npm run test:coverage` | Run tests with a coverage report |
-| `npm run typecheck`     | Run the TypeScript compiler      |
+| Command                 | Description                                     |
+| ----------------------- | ----------------------------------------------- |
+| `npx expo start`        | Start the development server                    |
+| `npm run lint`          | Lint and check formatting                       |
+| `npm test`              | Run unit tests                                  |
+| `npm run test:coverage` | Run tests with a coverage report                |
+| `npm run typecheck`     | Run the TypeScript compiler                     |
+| `npm run gen:types`     | Regenerate database types after a schema change |
 
 ## Development Workflow
 
