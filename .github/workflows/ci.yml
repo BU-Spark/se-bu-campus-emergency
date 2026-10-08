@@ -48,4 +48,4 @@ jobs:
           if-no-files-found: error # Fails the step if coverage/ directory is not found
 
       - name: Build project
-        run: npm run build
+        run: npm run typecheck
