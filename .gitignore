@@ -46,7 +46,3 @@ frontend/android/
 
 # testing
 coverage/
-
-# Supabase CLI local state
-backend/supabase/.branches/
-backend/supabase/.temp/
