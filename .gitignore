@@ -38,11 +38,15 @@ yarn-error.*
 example
 
 # generated native folders
-/ios
-/android
+frontend/ios/
+frontend/android/
 
 # Supabase keys
 .env
 
 # testing
 coverage/
+
+# Supabase CLI local state
+backend/supabase/.branches/
+backend/supabase/.temp/

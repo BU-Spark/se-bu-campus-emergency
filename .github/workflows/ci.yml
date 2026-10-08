@@ -17,6 +17,10 @@ jobs:
     name: Test, Lint, and Build
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: frontend
+
     strategy:
       matrix:
         node-version: [22.x] # Latest LTS version
@@ -30,6 +34,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm' # Cache npm dependencies
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci # Use npm ci for cleaner installs in CI
@@ -44,8 +49,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: coverage/
+          path: frontend/coverage/
           if-no-files-found: error # Fails the step if coverage/ directory is not found
 
-      - name: Build project
+      - name: Type check
         run: npm run typecheck

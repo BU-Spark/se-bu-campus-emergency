@@ -52,7 +52,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "typecheck": "tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "cd .. && husky"
   },
   "private": true,
   "lint-staged": {
