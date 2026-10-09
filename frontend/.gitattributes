@@ -1,0 +1,5 @@
+# Keep the formatter's LF line endings when checking out on Windows.
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.css text eol=lf
