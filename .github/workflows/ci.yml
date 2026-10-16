@@ -6,33 +6,30 @@ on:
       - dev
       - main
       - version-2
+      - 'ci/**'
   pull_request:
     branches:
       - main
       - dev
       - version-2
+  workflow_dispatch: # Allow manual runs from the Actions tab
+
+defaults:
+  run:
+    working-directory: frontend
 
 jobs:
-  test-lint-build:
-    name: Test, Lint, and Build
+  lint:
+    name: Lint and Type Check
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: frontend
-
-    strategy:
-      matrix:
-        node-version: [22.x] # Latest LTS version
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: .nvmrc
           cache: 'npm' # Cache npm dependencies
           cache-dependency-path: frontend/package-lock.json
 
@@ -40,10 +37,30 @@ jobs:
         run: npm ci # Use npm ci for cleaner installs in CI
 
       - name: Run linter
-        run: npm run lint
+        run: npm run lint -- --max-warnings 0 # Fail on any lint error or warning
+
+      - name: Type check
+        run: npm run typecheck
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Run tests and collect coverage
-        run: npm run test:coverage
+        run: npm run test:coverage -- --ci --verbose # --verbose lists every test in the logs
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
@@ -52,5 +69,33 @@ jobs:
           path: frontend/coverage/
           if-no-files-found: error # Fails the step if coverage/ directory is not found
 
-      - name: Type check
-        run: npm run typecheck
+  build:
+    name: Build Web App
+    runs-on: ubuntu-latest
+    needs: [lint, test] # Only build after lint and tests pass
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Export static web build
+        run: npm run build:web
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: frontend/dist/
+          if-no-files-found: error

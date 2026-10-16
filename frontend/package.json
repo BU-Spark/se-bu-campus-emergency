@@ -55,6 +55,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "typecheck": "tsc --noEmit",
+    "build:web": "expo export --platform web",
     "prepare": "cd .. && husky",
     "gen:types": "cd ../backend && npx supabase gen types typescript --linked --schema public > ../frontend/src/types/database.types.ts && cd ../frontend && prettier --write src/types/database.types.ts"
   },
