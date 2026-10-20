@@ -8,8 +8,77 @@ export type Database = {
   };
   public: {
     Tables: {
+      aeds: {
+        Row: {
+          building_id: string;
+          created_at: string;
+          floor: string;
+          id: string;
+          location_note: string;
+          room: string;
+          sort_order: number;
+        };
+        Insert: {
+          building_id: string;
+          created_at?: string;
+          floor: string;
+          id: string;
+          location_note: string;
+          room: string;
+          sort_order: number;
+        };
+        Update: {
+          building_id?: string;
+          created_at?: string;
+          floor?: string;
+          id?: string;
+          location_note?: string;
+          room?: string;
+          sort_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'aeds_building_id_fkey';
+            columns: ['building_id'];
+            isOneToOne: false;
+            referencedRelation: 'buildings';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      buildings: {
+        Row: {
+          address: string;
+          campus: string;
+          created_at: string;
+          id: string;
+          latitude: number | null;
+          longitude: number | null;
+          name: string;
+        };
+        Insert: {
+          address: string;
+          campus: string;
+          created_at?: string;
+          id: string;
+          latitude?: number | null;
+          longitude?: number | null;
+          name: string;
+        };
+        Update: {
+          address?: string;
+          campus?: string;
+          created_at?: string;
+          id?: string;
+          latitude?: number | null;
+          longitude?: number | null;
+          name?: string;
+        };
+        Relationships: [];
+      };
       contacts: {
         Row: {
+          address: string | null;
           campus: string;
           created_at: string;
           description: string;
@@ -20,6 +89,7 @@ export type Database = {
           source_url: string;
         };
         Insert: {
+          address?: string | null;
           campus: string;
           created_at?: string;
           description: string;
@@ -30,6 +100,7 @@ export type Database = {
           source_url: string;
         };
         Update: {
+          address?: string | null;
           campus?: string;
           created_at?: string;
           description?: string;
@@ -40,6 +111,36 @@ export type Database = {
           source_url?: string;
         };
         Relationships: [];
+      };
+      emergency_contacts: {
+        Row: {
+          contact_id: string;
+          emergency_type_id: string;
+        };
+        Insert: {
+          contact_id: string;
+          emergency_type_id: string;
+        };
+        Update: {
+          contact_id?: string;
+          emergency_type_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'emergency_contacts_contact_id_fkey';
+            columns: ['contact_id'];
+            isOneToOne: false;
+            referencedRelation: 'contacts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'emergency_contacts_emergency_type_id_fkey';
+            columns: ['emergency_type_id'];
+            isOneToOne: false;
+            referencedRelation: 'emergency_types';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       emergency_types: {
         Row: {
@@ -65,12 +166,49 @@ export type Database = {
         };
         Relationships: [];
       };
+      guidance_step_contacts: {
+        Row: {
+          contact_id: string;
+          emergency_type_id: string;
+          sort_order: number;
+          step_order: number;
+        };
+        Insert: {
+          contact_id: string;
+          emergency_type_id: string;
+          sort_order: number;
+          step_order: number;
+        };
+        Update: {
+          contact_id?: string;
+          emergency_type_id?: string;
+          sort_order?: number;
+          step_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'guidance_step_contacts_contact_id_fkey';
+            columns: ['contact_id'];
+            isOneToOne: false;
+            referencedRelation: 'contacts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'guidance_step_contacts_emergency_type_id_step_order_fkey';
+            columns: ['emergency_type_id', 'step_order'];
+            isOneToOne: false;
+            referencedRelation: 'guidance_steps';
+            referencedColumns: ['emergency_type_id', 'step_order'];
+          },
+        ];
+      };
       guidance_steps: {
         Row: {
           body: string;
           created_at: string;
           emergency_type_id: string;
           id: number;
+          link: string | null;
           section: string | null;
           step_order: number;
           title: string;
@@ -80,6 +218,7 @@ export type Database = {
           created_at?: string;
           emergency_type_id: string;
           id?: never;
+          link?: string | null;
           section?: string | null;
           step_order: number;
           title: string;
@@ -89,6 +228,7 @@ export type Database = {
           created_at?: string;
           emergency_type_id?: string;
           id?: never;
+          link?: string | null;
           section?: string | null;
           step_order?: number;
           title?: string;

@@ -41,10 +41,30 @@ const contacts = [
     phone: '2025550100',
     campus: 'ALL',
     description: 'Test fixture',
+    address: null,
     sort_order: 1,
+    emergencies: [],
   },
-  { id: 'crc', name: 'CRC contact', phone: '+12025550101', campus: 'CRC', description: 'Test fixture', sort_order: 2 },
-  { id: 'med', name: 'MED contact', phone: '+12025550102', campus: 'MED', description: 'Test fixture', sort_order: 3 },
+  {
+    id: 'crc',
+    name: 'CRC contact',
+    phone: '+12025550101',
+    campus: 'CRC',
+    description: 'Test fixture',
+    address: null,
+    sort_order: 2,
+    emergencies: [],
+  },
+  {
+    id: 'med',
+    name: 'MED contact',
+    phone: '+12025550102',
+    campus: 'MED',
+    description: 'Test fixture',
+    address: null,
+    sort_order: 3,
+    emergencies: [],
+  },
 ];
 const ready = <T,>(data: T) => ({ data, loading: false, error: undefined, reload: jest.fn() });
 const mockTypes = jest.mocked(useEmergencyTypes);
@@ -56,8 +76,24 @@ beforeEach(() => {
   mockTypes.mockReturnValue(ready(types));
   mockSteps.mockReturnValue(
     ready([
-      { id: 2, section: 'Example section', step_order: 2, title: 'Second step', body: 'Second body' },
-      { id: 1, section: 'Example section', step_order: 1, title: 'First step', body: 'First body' },
+      {
+        id: 2,
+        section: 'Example section',
+        step_order: 2,
+        title: 'Second step',
+        body: 'Second body',
+        link: null,
+        contacts: [],
+      },
+      {
+        id: 1,
+        section: 'Example section',
+        step_order: 1,
+        title: 'First step',
+        body: 'First body',
+        link: null,
+        contacts: [],
+      },
     ])
   );
   mockContacts.mockReturnValue(ready(contacts));
@@ -121,13 +157,13 @@ it('filters contacts by campus while keeping shared contacts', async () => {
 it('never dials on selection or cancel, and only dials after confirmation', async () => {
   const openURL = jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined);
   await render(<ContactsScreen />);
-  await fireEvent.press(screen.getByRole('button', { name: 'Call CRC contact, +12025550101' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Call CRC contact, (202) 555-0101' }));
   expect(screen.getByText('CONFIRM CALL')).toBeTruthy();
   expect(openURL).not.toHaveBeenCalled();
   await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
   expect(openURL).not.toHaveBeenCalled();
   expect(screen.queryByText('CONFIRM CALL')).toBeNull();
-  await fireEvent.press(screen.getByRole('button', { name: 'Call CRC contact, +12025550101' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Call CRC contact, (202) 555-0101' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Call Now' }));
   await waitFor(() => expect(openURL).toHaveBeenCalledWith('tel:+12025550101'));
   expect(openURL).toHaveBeenCalledTimes(1);
@@ -136,7 +172,7 @@ it('never dials on selection or cancel, and only dials after confirmation', asyn
 it('shows a useful message when the phone app cannot open', async () => {
   jest.spyOn(Linking, 'openURL').mockRejectedValue(new Error('unavailable'));
   await render(<ContactsScreen />);
-  await fireEvent.press(screen.getByRole('button', { name: 'Call CRC contact, +12025550101' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Call CRC contact, (202) 555-0101' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Call Now' }));
   await waitFor(() => expect(screen.getByText(/Unable to open the phone app/)).toBeTruthy());
   expect(screen.getByRole('button', { name: 'Cancel' })).toBeTruthy();

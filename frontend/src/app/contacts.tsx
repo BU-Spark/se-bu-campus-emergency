@@ -1,59 +1,55 @@
-import { useRef, useState } from 'react';
-import { Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
-import { EmergencyIcon } from '@/components/emergency/icon';
+import { useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallConfirmation } from '@/components/emergency/call-confirmation';
+import { ContactCard } from '@/components/emergency/contact-card';
 import { DataState, EmergencyScreen, ui } from '@/components/emergency/screen';
-import { useContacts } from '@/hooks/use-emergency-data';
-import type { Contact } from '@/services/emergency-data';
+import { useCurrentLocation } from '@/hooks/use-current-location';
+import { useContacts, useEmergencyTypes } from '@/hooks/use-emergency-data';
+import type { Campus } from '@/lib/campus';
+
+const campusTabs = [
+  ['CRC', 'Charles River Campus'],
+  ['MED', 'Medical Campus'],
+] as const;
 
 export default function ContactsScreen() {
+  // Opened from an emergency's "Call for Help", e.g. /contacts?emergency=fire, it lists only that emergency's contacts.
+  const params = useLocalSearchParams<{ emergency?: string | string[] }>();
+  const emergency = Array.isArray(params.emergency) ? params.emergency[0] : params.emergency;
   const query = useContacts();
-  const [campus, setCampus] = useState('CRC');
-  const [selected, setSelected] = useState<Contact | null>(null);
-  const [dialing, setDialing] = useState(false);
-  const [callError, setCallError] = useState('');
-  const callInFlight = useRef(false);
-  const contacts = [...(query.data ?? [])]
+  const types = useEmergencyTypes();
+  const location = useCurrentLocation();
+  const [chosenCampus, setChosenCampus] = useState<Campus>();
+  const [showAll, setShowAll] = useState(false);
+  const { requestCall, confirmation } = useCallConfirmation();
+  // Until the user picks a campus, follow the one their location is on.
+  const detectedCampus = location.status === 'ready' ? location.campus : undefined;
+  const campus = chosenCampus ?? detectedCampus ?? 'CRC';
+  const all = query.data ?? [];
+  const forEmergency = emergency && !showAll ? all.filter((contact) => contact.emergencies.includes(emergency)) : [];
+  // Emergencies without their own contacts (e.g. Extreme Weather) fall back to the full list.
+  const filtered = forEmergency.length > 0;
+  const emergencyName = types.data?.find((type) => type.id === emergency)?.name;
+  const contacts = (filtered ? forEmergency : all)
     .filter((contact) => contact.campus === campus || contact.campus === 'ALL')
     .sort((a, b) => a.sort_order - b.sort_order);
-  function close() {
-    if (!callInFlight.current) {
-      setSelected(null);
-      setCallError('');
-    }
-  }
-  async function call() {
-    if (!selected || callInFlight.current) return;
-    callInFlight.current = true;
-    setDialing(true);
-    setCallError('');
-    try {
-      const phone = selected.phone.replace(/[\s().-]/g, '');
-      if (!/^\+?\d+$/.test(phone)) throw new Error('Invalid number');
-      await Linking.openURL('tel:' + phone);
-      setSelected(null);
-    } catch {
-      setCallError('Unable to open the phone app. You can dial the displayed number manually.');
-    } finally {
-      callInFlight.current = false;
-      setDialing(false);
-    }
-  }
   return (
     <EmergencyScreen back help={false}>
       <Text accessibilityRole="header" style={ui.title}>
-        Emergency Contacts
+        {filtered && emergencyName ? `${emergencyName} Contacts` : 'Emergency Contacts'}
       </Text>
-      <Text style={[ui.subtitle, styles.intro]}>Choose your campus, then tap a contact.</Text>
+      <Text style={[ui.subtitle, styles.intro]}>
+        {filtered ? 'Numbers to call for this emergency. ' : ''}Choose your campus, then tap a contact.
+        {!chosenCampus && detectedCampus ? ' Campus selected from your location.' : ''}
+      </Text>
       <View style={styles.tabs}>
-        {[
-          ['CRC', 'Charles River Campus'],
-          ['MED', 'Medical Campus'],
-        ].map(([value, label]) => (
+        {campusTabs.map(([value, label]) => (
           <Pressable
             key={value}
             accessibilityRole="tab"
             accessibilityState={{ selected: campus === value }}
-            onPress={() => setCampus(value)}
+            onPress={() => setChosenCampus(value)}
             style={[styles.tab, campus === value && styles.activeTab]}
           >
             <Text style={[styles.tabText, campus === value && styles.activeTabText]}>{label}</Text>
@@ -63,68 +59,17 @@ export default function ContactsScreen() {
       <DataState {...query} empty={!contacts.length} emptyMessage="No contacts are available for this campus." />
       {!query.loading &&
         !query.error &&
-        contacts.map((contact) => (
-          <Pressable
-            key={contact.id}
-            accessibilityRole="button"
-            accessibilityLabel={`Call ${contact.name}, ${contact.phone}`}
-            onPress={() => {
-              setSelected(contact);
-              setCallError('');
-            }}
-            style={({ pressed }) => [styles.contact, contact.id === '911' && styles.urgent, pressed && ui.pressed]}
-          >
-            <View style={styles.contactCopy}>
-              <Text style={styles.contactName}>{contact.name}</Text>
-              <Text style={styles.phone}>{contact.phone}</Text>
-              <Text style={styles.description}>{contact.description}</Text>
-            </View>
-            <View style={styles.phoneIcon}>
-              <EmergencyIcon name="phone" size={22} />
-            </View>
-          </Pressable>
-        ))}
-      <Modal visible={selected !== null} transparent animationType="fade" onRequestClose={close}>
-        <View style={styles.backdrop}>
-          <View accessibilityViewIsModal style={styles.dialog}>
-            <View style={styles.modalIcon}>
-              <EmergencyIcon name="phone" size={28} />
-            </View>
-            <Text accessibilityRole="header" style={styles.confirmTitle}>
-              CONFIRM CALL
-            </Text>
-            <Text style={styles.selectedName}>{selected?.name}</Text>
-            <Text selectable style={styles.modalPhone}>
-              {selected?.phone}
-            </Text>
-            <Text style={styles.description}>Your phone app will open to place this call.</Text>
-            {!!callError && (
-              <Text accessibilityRole="alert" style={styles.error}>
-                {callError}
-              </Text>
-            )}
-            <View style={styles.actions}>
-              <Pressable
-                accessibilityRole="button"
-                disabled={dialing}
-                onPress={close}
-                style={[styles.cancel, styles.action]}
-              >
-                <Text style={styles.cancelText}>Cancel</Text>
-              </Pressable>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityState={{ disabled: dialing }}
-                disabled={dialing}
-                onPress={call}
-                style={[ui.darkButton, styles.action, dialing && ui.pressed]}
-              >
-                <Text style={ui.helpText}>{dialing ? 'Opening…' : 'Call Now'}</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        contacts.map((contact) => <ContactCard key={contact.id} contact={contact} onCall={requestCall} />)}
+      {filtered && !query.loading && !query.error && (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => setShowAll(true)}
+          style={({ pressed }) => [styles.showAll, pressed && ui.pressed]}
+        >
+          <Text style={styles.showAllText}>View all contacts</Text>
+        </Pressable>
+      )}
+      {confirmation}
     </EmergencyScreen>
   );
 }
@@ -135,41 +80,6 @@ const styles = StyleSheet.create({
   activeTab: { backgroundColor: '#a62b36' },
   tabText: { color: '#363230', textAlign: 'center', fontWeight: '600', fontSize: 14 },
   activeTabText: { color: '#fff' },
-  contact: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#d6d4d3',
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  urgent: { backgroundColor: '#f6d6d9', borderColor: '#e7b1b6' },
-  contactCopy: { flex: 1, gap: 6 },
-  contactName: { color: '#a32332', fontSize: 17, fontWeight: '700' },
-  phone: { color: '#2d2926', fontSize: 17, fontWeight: '600' },
-  description: { color: '#575350', fontSize: 14, lineHeight: 20 },
-  phoneIcon: { backgroundColor: '#a62b36', borderRadius: 22, padding: 10 },
-  backdrop: { flex: 1, backgroundColor: '#00000080', justifyContent: 'center', padding: 24 },
-  dialog: {
-    backgroundColor: '#f0f4f5',
-    borderRadius: 20,
-    padding: 24,
-    width: '100%',
-    maxWidth: 420,
-    alignSelf: 'center',
-    alignItems: 'center',
-    gap: 12,
-  },
-  modalIcon: { backgroundColor: '#a62b36', padding: 14, borderRadius: 30 },
-  confirmTitle: { color: '#a62b36', fontSize: 21, fontWeight: '800' },
-  selectedName: { color: '#2d2926', fontSize: 18, fontWeight: '600', textAlign: 'center' },
-  modalPhone: { color: '#363230', fontSize: 22 },
-  actions: { width: '100%', flexDirection: 'row', gap: 12, marginTop: 10 },
-  action: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
-  cancel: { backgroundColor: '#e0e3e7', borderRadius: 10, minHeight: 48, padding: 14 },
-  cancelText: { color: '#363230', fontSize: 16, fontWeight: '600' },
-  error: { color: '#a32332', fontSize: 14, lineHeight: 20 },
+  showAll: { alignSelf: 'center', minHeight: 48, justifyContent: 'center', paddingHorizontal: 20, marginTop: 4 },
+  showAllText: { color: '#286b9c', fontSize: 16, fontWeight: '700', textDecorationLine: 'underline' },
 });

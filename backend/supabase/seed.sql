@@ -7,6 +7,10 @@
 --   * The sheet's numbered contact references ("call ①", "call ②", "call ③") are written out
 --     as the contact's name (Facilities, BU Public Safety (BUPD), ROHP).
 --   * Spelling errors in the source ("unkown", "utilites") are corrected.
+--   * The AED step points to the app's "Find an AED" screen instead of maps.bu.edu. AED locations
+--     come from the BU AED list (see seeds/aeds.sql).
+--   * Phone numbers and addresses in the medical steps are shown as call/directions buttons (see
+--     "Contact links" at the end), so the step text no longer repeats them.
 --
 -- The script is idempotent: re-running it updates existing rows instead of failing.
 
@@ -42,9 +46,9 @@ insert into public.guidance_steps (emergency_type_id, section, step_order, title
 
   -- Medical Emergencies
   ('medical', null, 1, 'Call for help',               'Call BU Public Safety (BUPD) for medical assistance.'),
-  ('medical', null, 2, 'Find a defibrillator (AED)',  'Find defibrillators at maps.bu.edu » Campus » Safety » AEDs.'),
-  ('medical', null, 3, 'Minor injuries: students',    'Student Health Services: (617) 353-3575, 881 Commonwealth Ave.'),
-  ('medical', null, 4, 'Minor injuries: employees',   'Occupational Health Center: (617) 353-6630, 930 Commonwealth Ave., #1200. Employee injury reporting: Conduent (833) 951-2415.'),
+  ('medical', null, 2, 'Find a defibrillator (AED)',  'Tap "Find an AED" to see defibrillator locations by campus and building.'),
+  ('medical', null, 3, 'Minor injuries: students',    'Students: go to Student Health Services.'),
+  ('medical', null, 4, 'Minor injuries: employees',   'Employees: go to the Occupational Health Center, and report the injury to Conduent.'),
   ('medical', null, 5, 'Lab injuries and exposures',  'Report lab-related injuries/exposures by calling ROHP.'),
 
   -- Hazardous Materials / Spill
@@ -95,20 +99,81 @@ on conflict (emergency_type_id, step_order) do update set
 -- ---------------------------------------------------------------------------
 -- Contacts (CRC = Charles River Campus, MED = Medical Campus)
 -- ---------------------------------------------------------------------------
-insert into public.contacts (id, name, description, phone, campus, sort_order, source_url) values
-  ('911',                 'Emergency (911)',                      'Fire. After calling 911, also call BU Public Safety (BUPD).', '911',          'ALL', 1, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
-  ('bupd-crc',            'BU Public Safety (BUPD)',              'Public safety and medical incidents',                       '+16173532121', 'CRC', 2, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
-  ('bupd-med',            'BU Public Safety (BUPD)',              'Public safety and medical incidents',                       '+16173584444', 'MED', 3, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
-  ('facilities-crc',      'Facilities',                           'Facilities events and hazardous material spills',           '+16173532105', 'CRC', 4, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
-  ('facilities-med',      'Facilities',                           'Facilities events and hazardous material spills',           '+16173584144', 'MED', 5, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
-  ('rohp',                'ROHP',                                 'Exposures and lab-related incidents',                       '+16173587647', 'ALL', 6, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
-  ('student-health',      'Student Health Services',              'Minor injuries (students). 881 Commonwealth Ave.',          '+16173533575', 'CRC', 7, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
-  ('occupational-health', 'Occupational Health Center',           'Minor injuries (employees). 930 Commonwealth Ave., #1200',  '+16173536630', 'CRC', 8, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
-  ('employee-injury',     'Employee Injury Reporting (Conduent)', 'Report employee injuries',                                  '+18339512415', 'ALL', 9, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf')
+insert into public.contacts (id, name, description, phone, address, campus, sort_order, source_url) values
+  ('911',                 'Emergency (911)',                      'Fire. After calling 911, also call BU Public Safety (BUPD).', '911', null, 'ALL', 1, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
+  ('bupd-crc',            'BU Public Safety (BUPD)',              'Public safety and medical incidents',                       '+16173532121', null, 'CRC', 2, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
+  ('bupd-med',            'BU Public Safety (BUPD)',              'Public safety and medical incidents',                       '+16173584444', null, 'MED', 3, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
+  ('facilities-crc',      'Facilities',                           'Facilities events and hazardous material spills',           '+16173532105', null, 'CRC', 4, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
+  ('facilities-med',      'Facilities',                           'Facilities events and hazardous material spills',           '+16173584144', null, 'MED', 5, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
+  ('rohp',                'ROHP',                                 'Exposures and lab-related incidents',                       '+16173587647', null, 'ALL', 6, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
+  ('student-health',      'Student Health Services',              'Minor injuries (students)',                                 '+16173533575', '881 Commonwealth Ave.', 'CRC', 7, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
+  ('occupational-health', 'Occupational Health Center',           'Minor injuries (employees)',                                '+16173536630', '930 Commonwealth Ave., #1200', 'CRC', 8, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf'),
+  ('employee-injury',     'Employee Injury Reporting (Conduent)', 'Report employee injuries',                                  '+18339512415', null, 'ALL', 9, 'https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf')
 on conflict (id) do update set
   name        = excluded.name,
   description = excluded.description,
   phone       = excluded.phone,
+  address     = excluded.address,
   campus      = excluded.campus,
   sort_order  = excluded.sort_order,
   source_url  = excluded.source_url;
+
+-- ---------------------------------------------------------------------------
+-- Contact links
+-- ---------------------------------------------------------------------------
+-- Steps that open another screen of the app.
+update public.guidance_steps set link = null where link is not null;
+update public.guidance_steps set link = '/aeds' where emergency_type_id = 'medical' and step_order = 2;
+
+-- Contacts shown by "Call for Help" on each emergency's screen, following the numbered contacts the source
+-- sheet refers to in each section. Emergencies with no contacts here (Extreme Weather) show every contact.
+delete from public.emergency_contacts;
+insert into public.emergency_contacts (emergency_type_id, contact_id) values
+  ('fire',               '911'),
+  ('fire',               'bupd-crc'),
+  ('fire',               'bupd-med'),
+  ('medical',            'bupd-crc'),
+  ('medical',            'bupd-med'),
+  ('medical',            'student-health'),
+  ('medical',            'occupational-health'),
+  ('medical',            'employee-injury'),
+  ('medical',            'rohp'),
+  ('hazardous-spill',    'facilities-crc'),
+  ('hazardous-spill',    'facilities-med'),
+  ('hazardous-spill',    'rohp'),
+  ('violence',           'bupd-crc'),
+  ('violence',           'bupd-med'),
+  ('suspicious-package', 'bupd-crc'),
+  ('suspicious-package', 'bupd-med'),
+  ('utilities',          'facilities-crc'),
+  ('utilities',          'facilities-med');
+
+-- Call buttons inside the steps that tell the user to call someone. Campus-specific numbers (BUPD,
+-- Facilities) are listed for both campuses; the app shows the one for the user's campus.
+delete from public.guidance_step_contacts;
+insert into public.guidance_step_contacts (emergency_type_id, step_order, contact_id, sort_order) values
+  ('fire',               3, '911',                 1),
+  ('fire',               3, 'bupd-crc',            2),
+  ('fire',               3, 'bupd-med',            3),
+  ('medical',            1, 'bupd-crc',            1),
+  ('medical',            1, 'bupd-med',            2),
+  ('medical',            3, 'student-health',      1),
+  ('medical',            4, 'occupational-health', 1),
+  ('medical',            4, 'employee-injury',     2),
+  ('medical',            5, 'rohp',                1),
+  ('hazardous-spill',    4, 'facilities-crc',      1),
+  ('hazardous-spill',    4, 'facilities-med',      2),
+  ('violence',           2, 'bupd-crc',            1),
+  ('violence',           2, 'bupd-med',            2),
+  ('suspicious-package', 2, 'bupd-crc',            1),
+  ('suspicious-package', 2, 'bupd-med',            2),
+  ('suspicious-package', 4, 'bupd-crc',            1),
+  ('suspicious-package', 4, 'bupd-med',            2),
+  ('suspicious-package', 8, 'bupd-crc',            1),
+  ('suspicious-package', 8, 'bupd-med',            2),
+  ('utilities',          1, 'facilities-crc',      1),
+  ('utilities',          1, 'facilities-med',      2),
+  ('utilities',          2, 'facilities-crc',      1),
+  ('utilities',          2, 'facilities-med',      2),
+  ('utilities',          4, 'facilities-crc',      1),
+  ('utilities',          4, 'facilities-med',      2);

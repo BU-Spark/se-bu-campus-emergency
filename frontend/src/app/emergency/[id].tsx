@@ -1,13 +1,35 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallConfirmation } from '@/components/emergency/call-confirmation';
+import { ContactCard } from '@/components/emergency/contact-card';
 import { EmergencyIcon, emergencyPresentation } from '@/components/emergency/icon';
 import { DataState, EmergencyScreen, ui } from '@/components/emergency/screen';
+import { useCurrentLocation } from '@/hooks/use-current-location';
 import { useEmergencyTypes, useGuidanceSteps } from '@/hooks/use-emergency-data';
-import type { GuidanceStep } from '@/services/emergency-data';
+import { campuses, type Campus } from '@/lib/campus';
+import type { ContactInfo, GuidanceStep } from '@/services/emergency-data';
 
-function StepCard({ step, color }: { step: GuidanceStep; color: string }) {
+/** In-app screens a step can link to (guidance_steps.link), with the button label shown in the step. */
+const stepLinks = { '/aeds': 'FIND AN AED' } as const;
+const isStepLink = (link: string | null): link is keyof typeof stepLinks => !!link && link in stepLinks;
+
+function StepCard({
+  step,
+  color,
+  campus,
+  onCall,
+}: {
+  step: GuidanceStep;
+  color: string;
+  campus?: Campus;
+  onCall: (contact: ContactInfo) => void;
+}) {
   const [expanded, setExpanded] = useState(true);
+  // Campus-specific numbers (BUPD, Facilities) are stored for both campuses; show the user's campus only,
+  // or both with a label when the campus is not known.
+  const contacts = step.contacts.filter((contact) => contact.campus === 'ALL' || !campus || contact.campus === campus);
+  const link = step.link;
   return (
     <View style={styles.card}>
       <Pressable
@@ -25,7 +47,34 @@ function StepCard({ step, color }: { step: GuidanceStep; color: string }) {
           {expanded ? '⌃' : '⌄'}
         </Text>
       </Pressable>
-      {expanded && <Text style={[ui.body, styles.stepBody]}>{step.body}</Text>}
+      {expanded && (
+        <View style={styles.stepBody}>
+          <Text style={ui.body}>{step.body}</Text>
+          {isStepLink(link) && (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push(link)}
+              style={({ pressed }) => [styles.linkButton, { backgroundColor: color }, pressed && ui.pressed]}
+            >
+              <Text style={ui.helpText}>{stepLinks[link]}</Text>
+            </Pressable>
+          )}
+          {contacts.length > 0 && (
+            <View style={styles.contacts}>
+              {contacts.map((contact) => (
+                <ContactCard
+                  key={contact.id}
+                  contact={contact}
+                  onCall={onCall}
+                  campusLabel={
+                    !campus && contact.campus !== 'ALL' ? campuses[contact.campus as Campus]?.name : undefined
+                  }
+                />
+              ))}
+            </View>
+          )}
+        </View>
+      )}
     </View>
   );
 }
@@ -34,11 +83,14 @@ export default function GuidanceScreen() {
   const id = (Array.isArray(params.id) ? params.id[0] : params.id) ?? '';
   const query = useGuidanceSteps(id);
   const types = useEmergencyTypes();
+  const location = useCurrentLocation();
+  const { requestCall, confirmation } = useCallConfirmation();
+  const campus = location.status === 'ready' ? location.campus : undefined;
   const presentation = emergencyPresentation(id);
   const name = types.data?.find((type) => type.id === id)?.name ?? presentation.label ?? 'Emergency guidance';
   const steps = [...(query.data ?? [])].sort((a, b) => a.step_order - b.step_order);
   return (
-    <EmergencyScreen back>
+    <EmergencyScreen back emergency={id}>
       <View style={styles.heading}>
         <View style={[styles.categoryIcon, { backgroundColor: presentation.color }]}>
           <EmergencyIcon name={id} size={30} />
@@ -58,9 +110,10 @@ export default function GuidanceScreen() {
                 {step.section}
               </Text>
             )}
-            <StepCard step={step} color={presentation.color} />
+            <StepCard step={step} color={presentation.color} campus={campus} onCall={requestCall} />
           </View>
         ))}
+      {confirmation}
     </EmergencyScreen>
   );
 }
@@ -76,5 +129,14 @@ const styles = StyleSheet.create({
   numberText: { color: '#fff', fontSize: 23, fontWeight: '800' },
   stepTitle: { flex: 1, fontSize: 18, fontWeight: '700', color: '#2d2926' },
   chevron: { fontSize: 25, color: '#2d2926' },
-  stepBody: { paddingHorizontal: 16, paddingBottom: 16 },
+  stepBody: { paddingHorizontal: 16, paddingBottom: 16, gap: 14 },
+  linkButton: {
+    minHeight: 52,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+  },
+  contacts: { marginBottom: -12 },
 });

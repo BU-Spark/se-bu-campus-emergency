@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { useQuery } from '@/hooks/use-query';
-import { getContacts, getEmergencyTypes, getGuidanceSteps } from '@/services/emergency-data';
+import { getAedBuildings, getContacts, getEmergencyTypes, getGuidanceSteps } from '@/services/emergency-data';
 
 export function useEmergencyTypes() {
   return useQuery(getEmergencyTypes);
@@ -14,4 +14,8 @@ export function useGuidanceSteps(emergencyTypeId: string) {
 
 export function useContacts() {
   return useQuery(getContacts);
+}
+
+export function useAedBuildings() {
+  return useQuery(getAedBuildings);
 }

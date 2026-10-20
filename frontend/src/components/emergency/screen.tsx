@@ -1,28 +1,28 @@
 import { router } from 'expo-router';
 import type { ReactNode } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCurrentLocation, type CurrentLocation } from '@/hooks/use-current-location';
+import { campuses } from '@/lib/campus';
 import { EmergencyIcon } from './icon';
 
 export function EmergencyScreen({
   children,
   back = false,
   help = true,
+  emergency,
 }: {
   children: ReactNode;
   back?: boolean;
   help?: boolean;
+  /** Emergency type whose contacts "Call for Help" should show; all contacts when omitted. */
+  emergency?: string;
 }) {
   return (
     <SafeAreaView style={ui.safe}>
       <View style={ui.frame}>
         <View style={ui.header}>
-          <EmergencyIcon name="location" size={30} />
-          <View style={ui.headerCopy}>
-            <Text style={ui.headerTitle}>Your Current Location</Text>
-            <Text style={ui.headerDetail}>Location not set</Text>
-            <Text style={ui.headerDetail}>Boston University</Text>
-          </View>
+          <LocationSummary />
           <View style={ui.brand}>
             <Text style={ui.brandText}>BOSTON{'\n'}UNIVERSITY</Text>
           </View>
@@ -45,7 +45,7 @@ export function EmergencyScreen({
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Call for help — view contacts"
-              onPress={() => router.push('/contacts')}
+              onPress={() => router.push(emergency ? { pathname: '/contacts', params: { emergency } } : '/contacts')}
               style={({ pressed }) => [ui.help, pressed && ui.pressed]}
             >
               <EmergencyIcon name="phone" size={22} />
@@ -56,6 +56,58 @@ export function EmergencyScreen({
       </View>
     </SafeAreaView>
   );
+}
+/** Header block showing the user's location; tapping it retries or opens Settings when access is off. */
+function LocationSummary() {
+  const location = useCurrentLocation();
+  const [line1, line2, action] = describeLocation(location);
+  const onPress =
+    location.status === 'denied' && !location.canAskAgain
+      ? () => void Linking.openSettings()
+      : location.status === 'denied' || location.status === 'unavailable' || location.status === 'ready'
+        ? location.refresh
+        : undefined;
+  return (
+    <Pressable
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={['Your current location', line1, line2, action].filter(Boolean).join('. ')}
+      accessibilityLiveRegion="polite"
+      disabled={!onPress}
+      onPress={onPress}
+      style={({ pressed }) => [ui.location, pressed && ui.pressed]}
+    >
+      <EmergencyIcon name="location" size={30} />
+      <View style={ui.headerCopy}>
+        <Text style={ui.headerTitle}>Your Current Location</Text>
+        <Text style={ui.headerDetail}>{line1}</Text>
+        <Text style={ui.headerDetail}>{line2}</Text>
+        {action && <Text style={ui.headerAction}>{action}</Text>}
+      </View>
+    </Pressable>
+  );
+}
+function describeLocation(location: CurrentLocation): [string, string, string?] {
+  switch (location.status) {
+    case 'idle':
+      return ['Location not set', 'Boston University'];
+    case 'loading':
+      return ['Finding your location…', 'Boston University'];
+    case 'denied':
+      return [
+        'Location access is off',
+        'Boston University',
+        location.canAskAgain ? 'Tap to allow location' : 'Tap to turn on in Settings',
+      ];
+    case 'unavailable':
+      return ['Location unavailable', 'Boston University', 'Tap to try again'];
+    case 'ready': {
+      const { latitude, longitude } = location.coords;
+      return [
+        location.address ?? `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
+        location.campus ? campuses[location.campus].name : 'Not on a BU campus',
+      ];
+    }
+  }
 }
 export function DataState({
   loading,
@@ -107,9 +159,11 @@ export const ui = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 18,
   },
+  location: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
   headerCopy: { flex: 1 },
   headerTitle: { color: '#fff', fontSize: 15, fontWeight: '700', marginBottom: 4 },
   headerDetail: { color: '#dedbd9', fontSize: 12, lineHeight: 17 },
+  headerAction: { color: '#fff', fontSize: 12, lineHeight: 17, fontWeight: '700', textDecorationLine: 'underline' },
   brand: { backgroundColor: '#cc0000', borderColor: '#ff7979', borderWidth: 1, padding: 4 },
   brandText: { color: '#fff', fontFamily: 'serif', fontSize: 10, textAlign: 'center' },
   content: { padding: 20, paddingBottom: 28, flexGrow: 1 },
