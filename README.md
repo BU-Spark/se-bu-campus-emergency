@@ -27,13 +27,14 @@ comes from existing BU emergency plans and protocols ([BU EHS Emergency Communic
 ```bash
 git clone https://github.com/BU-Spark/se-bu-campus-emergency.git
 cd se-bu-campus-emergency
+cd frontend
 npm install
 ```
 
-Create a `.env` file inside the `mobile` folder:
+Create a `.env` file inside the `frontend` folder using `.env.example`:
 ```
 EXPO_PUBLIC_SUPABASE_URL=your-supabase-url
-EXPO_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
 ```
 Ask a team member for the values. Never commit this file.
 
@@ -50,4 +51,11 @@ This is the initial skeleton. It includes:
 - A guidance screen with step-by-step instructions for each emergency
 - A contacts screen with a confirmation popup before calling
 
-Authentication and location-based features will be added in later phases.
+The frontend also includes location permission handling, campus detection, manual building selection,
+and an AED directory with floor/room details and directions. A manual building choice is shared across
+screens for the current app session; it does not claim that GPS detected the building.
+
+Authentication, persistent offline caching, and automatic building-level detection are not implemented.
+The current backend supplies AEDs and campus contacts; other building-specific resources need a data contract.
+
+See `frontend/SCREEN_TESTING.md` for device testing and demo instructions.

@@ -7,6 +7,7 @@ import { DataState, EmergencyScreen, ui } from '@/components/emergency/screen';
 import { useCurrentLocation } from '@/hooks/use-current-location';
 import { useContacts, useEmergencyTypes } from '@/hooks/use-emergency-data';
 import type { Campus } from '@/lib/campus';
+import { contactCampus, useSelectedBuilding } from '@/hooks/use-selected-building';
 
 const campusTabs = [
   ['CRC', 'Charles River Campus'],
@@ -20,11 +21,12 @@ export default function ContactsScreen() {
   const query = useContacts();
   const types = useEmergencyTypes();
   const location = useCurrentLocation();
+  const { building } = useSelectedBuilding();
   const [chosenCampus, setChosenCampus] = useState<Campus>();
   const [showAll, setShowAll] = useState(false);
   const { requestCall, confirmation } = useCallConfirmation();
   // Until the user picks a campus, follow the one their location is on.
-  const detectedCampus = location.status === 'ready' ? location.campus : undefined;
+  const detectedCampus = contactCampus(building, location.status === 'ready' ? location.campus : undefined);
   const campus = chosenCampus ?? detectedCampus ?? 'CRC';
   const all = query.data ?? [];
   const forEmergency = emergency && !showAll ? all.filter((contact) => contact.emergencies.includes(emergency)) : [];
@@ -41,7 +43,14 @@ export default function ContactsScreen() {
       </Text>
       <Text style={[ui.subtitle, styles.intro]}>
         {filtered ? 'Numbers to call for this emergency. ' : ''}Choose your campus, then tap a contact.
-        {!chosenCampus && detectedCampus ? ' Campus selected from your location.' : ''}
+        {!chosenCampus && detectedCampus
+          ? building
+            ? ' Campus selected from your building.'
+            : ' Campus selected from your location.'
+          : ''}
+        {building?.campus === 'FEN'
+          ? ' Fenway-specific contacts are not supplied. Choose the relevant campus or use the shared contacts.'
+          : ''}
       </Text>
       <View style={styles.tabs}>
         {campusTabs.map(([value, label]) => (

@@ -1,6 +1,6 @@
 # Skeleton screen testing
 
-Run commands from `frontend/` on branch `front-end-feature-1`.
+Run commands from `frontend/` on branch `codex/frontend-building-integration`.
 
 ## Start the app
 
@@ -37,4 +37,35 @@ Screen tests mock the existing hooks and phone API. They cover category navigati
 
 Home -> Fire -> collapse and expand an instruction -> Call for Help -> switch campuses -> select a contact -> show confirmation -> Cancel -> Back.
 
-Location is explicitly shown as "Location not set". Automatic location, location editing, onboarding, authentication and content editing are outside this three-screen skeleton. The BU wordmark and vector icons are approximations of the supplied screenshots, not exported Figma assets.
+## Building and AED flow
+
+- Deny location permission: Home and emergency guidance must still work. Use Edit or Choose building to open the directory.
+- Search by name, address, or campus code. Selecting a row is a draft; Cancel must leave the previous building unchanged.
+- Save a building: its name and address appear in the shared header, explicitly labeled Manually selected.
+- Open Find an AED: the selected building's AED details are expanded first, with floor, room, location note, and a directions link.
+- Browse another campus or search another building without changing the saved building.
+- Choose a Medical Campus building and open Contacts: the Medical Campus tab should be selected. Guidance should also use the selected campus for its contact cards.
+- Clear the manual selection: the header returns to GPS status. Selection lasts for the current app session, not across restarts.
+- Test empty results, directory request failure, and retry. A building with no AED entries must say so rather than imply an AED exists.
+
+## Real-device acceptance record (not yet executed by the coding agent)
+
+Record device model, OS, Expo Go version, date, and pass/fail separately for iOS and Android:
+
+| Check | iOS | Android |
+| --- | --- | --- |
+| Home, seven scenarios, Back navigation | Pending | Pending |
+| Guidance expansion and complete content | Pending | Pending |
+| Location denied and manual building selection | Pending | Pending |
+| Selected building AEDs and directions | Pending | Pending |
+| Call confirmation and Cancel / Android Back | Pending | Pending |
+| Confirm opens dialer with a controlled, non-emergency test number | Pending | Pending |
+| Small screen, large text, keyboard, portrait/landscape | Pending | Pending |
+
+Never place real emergency calls for testing. Use a dedicated test fixture with a number you control
+to check native dialer integration; do not change production emergency contact numbers.
+
+GPS currently identifies a campus, not an exact building. Offline caching, onboarding, authentication,
+and content editing are not implemented. No general building-resource table is supplied: this UI shows
+available AEDs, directions, and campus contacts. The BU wordmark and vector icons approximate the
+supplied Figma screenshots; exact exported assets were not provided.

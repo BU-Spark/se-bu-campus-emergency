@@ -3,10 +3,12 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { EmergencyIcon, emergencyPresentation } from '@/components/emergency/icon';
 import { DataState, EmergencyScreen, ui } from '@/components/emergency/screen';
 import { useEmergencyTypes } from '@/hooks/use-emergency-data';
+import { useSelectedBuilding } from '@/hooks/use-selected-building';
 
 const order = ['fire', 'medical', 'hazardous-spill', 'utilities', 'violence', 'suspicious-package', 'weather'];
 export default function HomeScreen() {
   const query = useEmergencyTypes();
+  const { building } = useSelectedBuilding();
   const rank = (id: string) => (order.includes(id) ? order.indexOf(id) : order.length);
   const types = [...(query.data ?? [])].sort((a, b) => rank(a.id) - rank(b.id) || a.sort_order - b.sort_order);
   return (
@@ -34,10 +36,24 @@ export default function HomeScreen() {
           ))}
         </View>
       )}
+      <View style={styles.resources}>
+        <Text accessibilityRole="header" style={styles.resourceTitle}>
+          Building resources
+        </Text>
+        <Text style={ui.body}>{building ? building.name : 'Select a building to find its AED locations.'}</Text>
+        <Pressable accessibilityRole="button" onPress={() => router.push('/aeds')} style={ui.darkButton}>
+          <Text style={ui.helpText}>Find an AED</Text>
+        </Pressable>
+        <Pressable accessibilityRole="button" onPress={() => router.push('/location')} style={ui.back}>
+          <Text style={ui.backText}>{building ? 'Change building' : 'Choose building'}</Text>
+        </Pressable>
+      </View>
     </EmergencyScreen>
   );
 }
 const styles = StyleSheet.create({
+  resources: { padding: 16, backgroundColor: '#fff', borderRadius: 12, gap: 12 },
+  resourceTitle: { color: '#2d2926', fontSize: 20, fontWeight: '700' },
   heading: { textAlign: 'center', marginTop: 6 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 20, paddingVertical: 24 },
   card: {

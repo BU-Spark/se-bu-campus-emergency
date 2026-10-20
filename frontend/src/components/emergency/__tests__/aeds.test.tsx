@@ -89,7 +89,7 @@ it('ignores step links to unknown screens', async () => {
   jest.mocked(useLocalSearchParams).mockReturnValue({ id: 'fire' });
   jest.mocked(useGuidanceSteps).mockReturnValue(ready([step(1, '/unknown')]));
   await render(<GuidanceScreen />);
-  expect(screen.getAllByRole('button')).toHaveLength(3); // back, step header, call for help
+  expect(screen.queryByRole('button', { name: 'FIND AN AED' })).toBeNull();
 });
 
 it('offers directions to a building once it is opened', async () => {

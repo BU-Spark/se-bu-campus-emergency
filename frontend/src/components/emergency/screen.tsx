@@ -4,6 +4,7 @@ import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Text, Vi
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCurrentLocation, type CurrentLocation } from '@/hooks/use-current-location';
 import { campuses } from '@/lib/campus';
+import { useSelectedBuilding } from '@/hooks/use-selected-building';
 import { EmergencyIcon } from './icon';
 
 export function EmergencyScreen({
@@ -23,11 +24,19 @@ export function EmergencyScreen({
       <View style={ui.frame}>
         <View style={ui.header}>
           <LocationSummary />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Edit your building"
+            onPress={() => router.push('/location')}
+            style={ui.edit}
+          >
+            <Text style={ui.headerAction}>Edit</Text>
+          </Pressable>
           <View style={ui.brand}>
             <Text style={ui.brandText}>BOSTON{'\n'}UNIVERSITY</Text>
           </View>
         </View>
-        <ScrollView contentContainerStyle={ui.content}>
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={ui.content}>
           {back && (
             <Pressable
               accessibilityRole="button"
@@ -60,7 +69,20 @@ export function EmergencyScreen({
 /** Header block showing the user's location; tapping it retries or opens Settings when access is off. */
 function LocationSummary() {
   const location = useCurrentLocation();
+  const { building } = useSelectedBuilding();
   const [line1, line2, action] = describeLocation(location);
+  if (building)
+    return (
+      <View style={ui.location}>
+        <EmergencyIcon name="location" size={30} />
+        <View style={ui.headerCopy}>
+          <Text style={ui.headerTitle}>Your Current Location</Text>
+          <Text style={ui.headerDetail}>{building.name}</Text>
+          <Text style={ui.headerDetail}>{building.address}</Text>
+          <Text style={ui.headerDetail}>Manually selected</Text>
+        </View>
+      </View>
+    );
   const onPress =
     location.status === 'denied' && !location.canAskAgain
       ? () => void Linking.openSettings()
@@ -160,6 +182,7 @@ export const ui = StyleSheet.create({
     paddingVertical: 18,
   },
   location: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  edit: { minWidth: 44, minHeight: 44, justifyContent: 'center', alignItems: 'center' },
   headerCopy: { flex: 1 },
   headerTitle: { color: '#fff', fontSize: 15, fontWeight: '700', marginBottom: 4 },
   headerDetail: { color: '#dedbd9', fontSize: 12, lineHeight: 17 },

@@ -9,6 +9,7 @@ import { useCurrentLocation } from '@/hooks/use-current-location';
 import { useEmergencyTypes, useGuidanceSteps } from '@/hooks/use-emergency-data';
 import { campuses, type Campus } from '@/lib/campus';
 import type { ContactInfo, GuidanceStep } from '@/services/emergency-data';
+import { contactCampus, useSelectedBuilding } from '@/hooks/use-selected-building';
 
 /** In-app screens a step can link to (guidance_steps.link), with the button label shown in the step. */
 const stepLinks = { '/aeds': 'FIND AN AED' } as const;
@@ -84,8 +85,9 @@ export default function GuidanceScreen() {
   const query = useGuidanceSteps(id);
   const types = useEmergencyTypes();
   const location = useCurrentLocation();
+  const { building } = useSelectedBuilding();
   const { requestCall, confirmation } = useCallConfirmation();
-  const campus = location.status === 'ready' ? location.campus : undefined;
+  const campus = contactCampus(building, location.status === 'ready' ? location.campus : undefined);
   const presentation = emergencyPresentation(id);
   const name = types.data?.find((type) => type.id === id)?.name ?? presentation.label ?? 'Emergency guidance';
   const steps = [...(query.data ?? [])].sort((a, b) => a.step_order - b.step_order);

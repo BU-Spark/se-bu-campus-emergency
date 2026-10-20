@@ -4,6 +4,7 @@ import { DirectionsLink } from '@/components/emergency/contact-card';
 import { DataState, EmergencyScreen, ui } from '@/components/emergency/screen';
 import { useCurrentLocation } from '@/hooks/use-current-location';
 import { useAedBuildings } from '@/hooks/use-emergency-data';
+import { useSelectedBuilding } from '@/hooks/use-selected-building';
 import type { Aed, AedBuilding } from '@/services/emergency-data';
 
 const campusTabs = [
@@ -30,8 +31,8 @@ function AedRow({ aed }: { aed: Aed }) {
     </View>
   );
 }
-function BuildingCard({ building }: { building: AedBuilding }) {
-  const [expanded, setExpanded] = useState(false);
+function BuildingCard({ building, initiallyExpanded = false }: { building: AedBuilding; initiallyExpanded?: boolean }) {
+  const [expanded, setExpanded] = useState(initiallyExpanded);
   const count = `${building.aeds.length} AED${building.aeds.length === 1 ? '' : 's'}`;
   const showAddress = building.address !== building.name;
   return (
@@ -55,6 +56,7 @@ function BuildingCard({ building }: { building: AedBuilding }) {
       {expanded && (
         <>
           <DirectionsLink address={building.address} />
+          {!building.aeds.length && <Text style={styles.aed}>No AED locations are listed for this building.</Text>}
           {building.aeds.map((aed) => (
             <AedRow key={aed.id} aed={aed} />
           ))}
@@ -66,11 +68,14 @@ function BuildingCard({ building }: { building: AedBuilding }) {
 export default function AedScreen() {
   const query = useAedBuildings();
   const location = useCurrentLocation();
+  const { building: selectedBuilding } = useSelectedBuilding();
   const [chosenCampus, setChosenCampus] = useState<AedCampus>();
   const [search, setSearch] = useState('');
   // Until the user picks a campus, follow the one their location is on.
   const detectedCampus = location.status === 'ready' ? location.campus : undefined;
-  const campus: AedCampus = chosenCampus ?? detectedCampus ?? 'CRC';
+  const selectedCampus = campusTabs.find(([value]) => value === selectedBuilding?.campus)?.[0];
+  const campus: AedCampus = chosenCampus ?? selectedCampus ?? detectedCampus ?? 'CRC';
+  const currentBuilding = query.data?.find((item) => item.id === selectedBuilding?.id);
   const term = search.trim().toLowerCase();
   const buildings = (query.data ?? []).filter(
     (building) =>
@@ -86,6 +91,20 @@ export default function AedScreen() {
         Choose your campus, then tap your building to see where its defibrillators are.
         {!chosenCampus && detectedCampus ? ' Campus selected from your location.' : ''}
       </Text>
+      {!query.loading && !query.error && currentBuilding && (
+        <View>
+          <Text accessibilityRole="header" style={styles.buildingName}>
+            AEDs in your selected building
+          </Text>
+          <BuildingCard key={`selected-${currentBuilding.id}`} building={currentBuilding} initiallyExpanded />
+          <Text style={styles.intro}>Browse other buildings below</Text>
+        </View>
+      )}
+      {!query.loading && !query.error && selectedBuilding && !currentBuilding && (
+        <Text style={ui.body}>
+          Your selected building is no longer in the directory. Use Edit to choose another building.
+        </Text>
+      )}
       <View style={styles.tabs}>
         {campusTabs.map(([value, label]) => (
           <Pressable
