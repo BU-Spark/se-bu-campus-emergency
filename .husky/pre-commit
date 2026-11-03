@@ -1,1 +1,1 @@
-npx lint-staged && npm test
+cd frontend && npx lint-staged && npm test
