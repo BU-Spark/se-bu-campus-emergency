@@ -54,6 +54,9 @@ insert into public.guidance_steps (emergency_type_id, section, step_order, title
   ('hazardous-spill', null, 4, 'Report the spill',   'Call Facilities to report the spill.'),
   ('hazardous-spill', null, 5, 'Do not clean up',    'Do not attempt to clean unknown chemicals, large spills, highly hazardous spills, or any spill that could result in adverse exposure.'),
 
+  -- step_order is the order across the whole emergency type (it must be unique per type). The app restarts
+  -- the step number it shows at each section, so these display as Workplace Violence 1-4, Active Shooter 1-3.
+
   -- Violence
   ('violence', 'Workplace Violence',                1, 'Secure',              'Secure your area.'),
   ('violence', 'Workplace Violence',                2, 'Alert',               'Alert by calling BU Public Safety (BUPD).'),

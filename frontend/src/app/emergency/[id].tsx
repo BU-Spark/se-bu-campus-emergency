@@ -6,7 +6,7 @@ import { DataState, EmergencyScreen, ui } from '@/components/emergency/screen';
 import { useEmergencyTypes, useGuidanceSteps } from '@/hooks/use-emergency-data';
 import type { GuidanceStep } from '@/services/emergency-data';
 
-function StepCard({ step, color }: { step: GuidanceStep; color: string }) {
+function StepCard({ step, number, color }: { step: GuidanceStep; number: number; color: string }) {
   const [expanded, setExpanded] = useState(true);
   return (
     <View style={styles.card}>
@@ -18,7 +18,7 @@ function StepCard({ step, color }: { step: GuidanceStep; color: string }) {
         style={styles.stepHeader}
       >
         <View style={[styles.number, { backgroundColor: color }]}>
-          <Text style={styles.numberText}>{step.step_order}</Text>
+          <Text style={styles.numberText}>{number}</Text>
         </View>
         <Text style={styles.stepTitle}>{step.title}</Text>
         <Text accessible={false} style={styles.chevron}>
@@ -37,6 +37,13 @@ export default function GuidanceScreen() {
   const presentation = emergencyPresentation(id);
   const name = types.data?.find((type) => type.id === id)?.name ?? presentation.label ?? 'Emergency guidance';
   const steps = [...(query.data ?? [])].sort((a, b) => a.step_order - b.step_order);
+  // step_order is the order across the whole emergency; the number shown restarts at each section, so
+  // "Active Shooter" reads Run 1, Hide 2, Fight 3 rather than 5, 6, 7.
+  const numbers = steps.map((step, index) => {
+    let start = index;
+    while (start > 0 && steps[start - 1].section === step.section) start--;
+    return index - start + 1;
+  });
   return (
     <EmergencyScreen back>
       <View style={styles.heading}>
@@ -58,7 +65,7 @@ export default function GuidanceScreen() {
                 {step.section}
               </Text>
             )}
-            <StepCard step={step} color={presentation.color} />
+            <StepCard step={step} number={numbers[index]} color={presentation.color} />
           </View>
         ))}
     </EmergencyScreen>

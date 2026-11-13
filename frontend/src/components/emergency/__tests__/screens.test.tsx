@@ -141,3 +141,30 @@ it('shows a useful message when the phone app cannot open', async () => {
   await waitFor(() => expect(screen.getByText(/Unable to open the phone app/)).toBeTruthy());
   expect(screen.getByRole('button', { name: 'Cancel' })).toBeTruthy();
 });
+
+it('restarts step numbers at each section', async () => {
+  mockSteps.mockReturnValue(
+    ready([
+      { id: 1, section: 'Workplace Violence', step_order: 1, title: 'Secure', body: 'Secure your area.' },
+      { id: 2, section: 'Workplace Violence', step_order: 2, title: 'Alert', body: 'Call BUPD.' },
+      { id: 3, section: 'Active Shooter', step_order: 3, title: 'Run', body: 'Escape if possible.' },
+      { id: 4, section: 'Active Shooter', step_order: 4, title: 'Hide', body: 'Find a place out of sight.' },
+    ])
+  );
+  await render(<GuidanceScreen />);
+  expect(screen.getAllByText(/^[0-9]+$/).map((number) => number.props.children)).toEqual([1, 2, 1, 2]);
+});
+
+it('lists emergencies in the order the database returns them (sort_order)', async () => {
+  mockTypes.mockReturnValue(
+    ready([
+      { id: 'weather', name: 'Extreme Weather', sort_order: 1 },
+      { id: 'fire', name: 'Fire', sort_order: 2 },
+    ])
+  );
+  await render(<HomeScreen />);
+  expect(screen.getAllByRole('button', { name: /guidance$/ }).map((b) => b.props.accessibilityLabel)).toEqual([
+    'View Extreme Weather guidance',
+    'View Fire guidance',
+  ]);
+});

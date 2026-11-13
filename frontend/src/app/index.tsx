@@ -4,11 +4,10 @@ import { EmergencyIcon, emergencyPresentation } from '@/components/emergency/ico
 import { DataState, EmergencyScreen, ui } from '@/components/emergency/screen';
 import { useEmergencyTypes } from '@/hooks/use-emergency-data';
 
-const order = ['fire', 'medical', 'hazardous-spill', 'utilities', 'violence', 'suspicious-package', 'weather'];
 export default function HomeScreen() {
   const query = useEmergencyTypes();
-  const rank = (id: string) => (order.includes(id) ? order.indexOf(id) : order.length);
-  const types = [...(query.data ?? [])].sort((a, b) => rank(a.id) - rank(b.id) || a.sort_order - b.sort_order);
+  // Already in sort_order: getEmergencyTypes orders by it, so the database decides the home screen order.
+  const types = query.data ?? [];
   return (
     <EmergencyScreen>
       <Text accessibilityRole="header" style={[ui.title, styles.heading]}>
