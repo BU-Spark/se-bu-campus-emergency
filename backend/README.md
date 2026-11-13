@@ -9,7 +9,10 @@ The database is defined entirely in version-controlled files, so anyone can recr
 supabase/
 ├── config.toml   Supabase CLI configuration
 ├── migrations/   SQL files that create and change tables, applied in timestamp order
-└── seed.sql      Emergency guidance and contacts data
+├── seed.sql      Emergency guidance and contacts data
+├── seeds/        Generated seed files (aeds.sql: buildings and AEDs)
+└── data/         Source data: the BU AED list (CSV) and building coordinates (JSON)
+scripts/          Node.js scripts that turn the source data into seed files
 ```
 
 ## Data model
@@ -19,6 +22,8 @@ supabase/
 | `emergency_types` | Emergency categories shown on the home screen (Fire, Medical Emergencies, …)    |
 | `guidance_steps`  | Ordered step-by-step instructions for each emergency type                       |
 | `contacts`        | Emergency phone contacts for the Charles River (CRC) and Medical (MED) campuses |
+| `buildings`       | BU buildings with AEDs: name, address, campus and latitude/longitude            |
+| `aeds`            | AED locations (floor, room, note) in each building                              |
 
 All tables use Row Level Security with a public read-only policy: the app can read content without
 signing in, but cannot modify it. Content changes are made through migrations/seed files or the Supabase
@@ -29,6 +34,30 @@ dashboard.
 Guidance and contacts come from the official BU EHS
 [Emergency Instructions](https://www.bu.edu/ehs/files/2020/04/EHS-emergency-instructions-final.pdf) sheet.
 Every row stores its `source_url`. See the header of `seed.sql` for the small wording adaptations made for mobile.
+
+## Updating AED data
+
+AED locations come from the BU AED list (Google Sheet). Building coordinates come from geocoding each
+building's address with [OpenStreetMap Nominatim](https://nominatim.org) and are saved in
+`supabase/data/building-coordinates.json`. From the `backend/` directory:
+
+1. Download the sheet as CSV and save it over `supabase/data/aed-list.csv`.
+2. Look up coordinates for new buildings (or buildings whose address changed):
+
+   ```bash
+   node scripts/geocode-buildings.mjs
+   ```
+
+   It prints any address it couldn't find. To fix a result by hand, edit its latitude/longitude in the JSON
+   file and set `"source": "manual"`; manual entries are never overwritten. `--refresh` looks up every
+   building again.
+
+3. Regenerate the seed file and apply it:
+
+   ```bash
+   node scripts/generate-aed-seed.mjs
+   npx supabase db push --include-seed
+   ```
 
 ## Setup
 
