@@ -21,6 +21,25 @@ jest.mock('react-native-safe-area-context', () => {
   return { SafeAreaView: View };
 });
 jest.mock('expo-image', () => ({ Image: () => null }));
+// The header names the nearest BU building when there is no street address.
+jest.mock('@/hooks/use-emergency-data', () => ({
+  useAedBuildings: () => ({
+    data: [
+      {
+        id: '909',
+        name: 'Talbot Building',
+        address: '715 Albany Street',
+        campus: 'MED',
+        latitude: 42.335781,
+        longitude: -71.071689,
+        aeds: [],
+      },
+    ],
+    loading: false,
+    error: undefined,
+    reload: jest.fn(),
+  }),
+}));
 
 const location = jest.mocked(Location);
 const permission = (status: 'granted' | 'denied', canAskAgain: boolean) =>
@@ -51,11 +70,12 @@ it('shows the street address and campus once location is found', async () => {
   expect(screen.getByText('Charles River Campus')).toBeTruthy();
 });
 
-it('falls back to coordinates when the address lookup fails', async () => {
+it('names the nearest BU building, not coordinates, when the address lookup fails (e.g. on web)', async () => {
   location.getCurrentPositionAsync.mockResolvedValue(position(42.3355, -71.0725));
   location.reverseGeocodeAsync.mockRejectedValue(new Error('not supported on web'));
   await renderScreen();
-  expect(await screen.findByText('42.3355, -71.0725')).toBeTruthy();
+  expect(await screen.findByText('Near Talbot Building')).toBeTruthy();
+  expect(screen.queryByText(/42\.3355/)).toBeNull();
   expect(screen.getByText('Medical Campus')).toBeTruthy();
 });
 

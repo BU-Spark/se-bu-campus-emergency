@@ -3,7 +3,9 @@ import type { ReactNode } from 'react';
 import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCurrentLocation, type CurrentLocation } from '@/hooks/use-current-location';
+import { useAedBuildings } from '@/hooks/use-emergency-data';
 import { campuses } from '@/lib/campus';
+import { byDistance } from '@/lib/nearby';
 import { EmergencyIcon } from './icon';
 
 export function EmergencyScreen({
@@ -60,7 +62,11 @@ export function EmergencyScreen({
 /** Header block showing the user's location; tapping it retries or opens Settings when access is off. */
 function LocationSummary() {
   const location = useCurrentLocation();
-  const [line1, line2, action] = describeLocation(location);
+  const buildings = useAedBuildings();
+  // Without a street address (web browsers can't look one up), name the nearest BU building instead.
+  const [nearest] = location.status === 'ready' && buildings.data ? byDistance(location.coords, buildings.data) : [];
+  const nearBuilding = nearest && nearest.meters <= NEAR_BUILDING_METERS ? nearest.item.name : undefined;
+  const [line1, line2, action] = describeLocation(location, nearBuilding);
   const onPress =
     location.status === 'denied' && !location.canAskAgain
       ? () => void Linking.openSettings()
@@ -86,7 +92,10 @@ function LocationSummary() {
     </Pressable>
   );
 }
-function describeLocation(location: CurrentLocation): [string, string, string?] {
+/** Close enough to a building to say the user is "near" it. */
+const NEAR_BUILDING_METERS = 500;
+
+function describeLocation(location: CurrentLocation, nearBuilding?: string): [string, string, string?] {
   switch (location.status) {
     case 'idle':
       return ['Location not set', 'Boston University'];
@@ -100,13 +109,11 @@ function describeLocation(location: CurrentLocation): [string, string, string?] 
       ];
     case 'unavailable':
       return ['Location unavailable', 'Boston University', 'Tap to try again'];
-    case 'ready': {
-      const { latitude, longitude } = location.coords;
+    case 'ready':
       return [
-        location.address ?? `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
+        location.address ?? (nearBuilding ? `Near ${nearBuilding}` : 'Location found'),
         location.campus ? campuses[location.campus].name : 'Not on a BU campus',
       ];
-    }
   }
 }
 export function DataState({

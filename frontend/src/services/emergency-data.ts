@@ -18,7 +18,9 @@ export type GuidanceStep = Pick<
 
 const contactColumns = 'id, name, description, phone, address, campus, sort_order';
 export type Aed = Pick<Tables<'aeds'>, 'id' | 'floor' | 'room' | 'location_note' | 'sort_order'>;
-export type AedBuilding = Pick<Tables<'buildings'>, 'id' | 'name' | 'address' | 'campus'> & { aeds: Aed[] };
+export type AedBuilding = Pick<Tables<'buildings'>, 'id' | 'name' | 'address' | 'campus' | 'latitude' | 'longitude'> & {
+  aeds: Aed[];
+};
 
 /** All emergency categories, in dashboard order. */
 export async function getEmergencyTypes(): Promise<EmergencyType[]> {
@@ -72,7 +74,7 @@ export async function getContacts(): Promise<Contact[]> {
 export async function getAedBuildings(): Promise<AedBuilding[]> {
   const { data, error } = await supabase
     .from('buildings')
-    .select('id, name, address, campus, aeds(id, floor, room, location_note, sort_order)')
+    .select('id, name, address, campus, latitude, longitude, aeds(id, floor, room, location_note, sort_order)')
     .order('name', { ascending: true });
 
   if (error) {

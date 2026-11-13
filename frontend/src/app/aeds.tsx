@@ -1,9 +1,11 @@
+import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { DirectionsLink } from '@/components/emergency/contact-card';
 import { DataState, EmergencyScreen, ui } from '@/components/emergency/screen';
 import { useCurrentLocation } from '@/hooks/use-current-location';
 import { useAedBuildings } from '@/hooks/use-emergency-data';
+import { byDistance, formatDistance } from '@/lib/nearby';
 import type { Aed, AedBuilding } from '@/services/emergency-data';
 
 const campusTabs = [
@@ -30,15 +32,27 @@ function AedRow({ aed }: { aed: Aed }) {
     </View>
   );
 }
-function BuildingCard({ building }: { building: AedBuilding }) {
-  const [expanded, setExpanded] = useState(false);
+function BuildingCard({
+  building,
+  meters,
+  initiallyExpanded = false,
+}: {
+  building: AedBuilding;
+  /** Distance from the user, when their location is known. */
+  meters?: number;
+  initiallyExpanded?: boolean;
+}) {
+  const [expanded, setExpanded] = useState(initiallyExpanded);
   const count = `${building.aeds.length} AED${building.aeds.length === 1 ? '' : 's'}`;
   const showAddress = building.address !== building.name;
+  const distance = meters === undefined ? undefined : `${formatDistance(meters)} away`;
   return (
     <View style={styles.card}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={[building.name, showAddress && building.address, count].filter(Boolean).join(', ')}
+        accessibilityLabel={[building.name, showAddress && building.address, distance, count]
+          .filter(Boolean)
+          .join(', ')}
         accessibilityState={{ expanded }}
         onPress={() => setExpanded(!expanded)}
         style={({ pressed }) => [styles.buildingHeader, pressed && ui.pressed]}
@@ -46,6 +60,7 @@ function BuildingCard({ building }: { building: AedBuilding }) {
         <View style={styles.buildingCopy}>
           <Text style={styles.buildingName}>{building.name}</Text>
           {showAddress && <Text style={styles.detail}>{building.address}</Text>}
+          {distance && <Text style={styles.distance}>{distance}</Text>}
         </View>
         <Text style={styles.count}>{count}</Text>
         <Text accessible={false} style={styles.chevron}>
@@ -66,17 +81,29 @@ function BuildingCard({ building }: { building: AedBuilding }) {
 export default function AedScreen() {
   const query = useAedBuildings();
   const location = useCurrentLocation();
+  const params = useLocalSearchParams<{ building?: string }>();
   const [chosenCampus, setChosenCampus] = useState<AedCampus>();
   const [search, setSearch] = useState('');
-  // Until the user picks a campus, follow the one their location is on.
+  // A building opened from the home screen's map picks its campus; otherwise follow the user's location
+  // until they pick a campus themselves.
+  const openedBuilding = query.data?.find((building) => building.id === params.building);
   const detectedCampus = location.status === 'ready' ? location.campus : undefined;
-  const campus: AedCampus = chosenCampus ?? detectedCampus ?? 'CRC';
+  const campus: AedCampus = chosenCampus ?? (openedBuilding?.campus as AedCampus) ?? detectedCampus ?? 'CRC';
   const term = search.trim().toLowerCase();
-  const buildings = (query.data ?? []).filter(
+  const matching = (query.data ?? []).filter(
     (building) =>
       building.campus === campus &&
       (!term || building.name.toLowerCase().includes(term) || building.address.toLowerCase().includes(term))
   );
+  // Closest first when the user's location is known; buildings without coordinates keep name order, last.
+  const sorted =
+    location.status === 'ready'
+      ? [
+          ...byDistance(location.coords, matching),
+          ...matching.filter((b) => b.latitude === null || b.longitude === null).map((item) => ({ item })),
+        ]
+      : matching.map((item) => ({ item }));
+  const buildings: { item: AedBuilding; meters?: number }[] = sorted;
   return (
     <EmergencyScreen back>
       <Text accessibilityRole="header" style={ui.title}>
@@ -84,7 +111,7 @@ export default function AedScreen() {
       </Text>
       <Text style={[ui.subtitle, styles.intro]}>
         Choose your campus, then tap your building to see where its defibrillators are.
-        {!chosenCampus && detectedCampus ? ' Campus selected from your location.' : ''}
+        {location.status === 'ready' ? ' Closest buildings are listed first.' : ''}
       </Text>
       <View style={styles.tabs}>
         {campusTabs.map(([value, label]) => (
@@ -118,7 +145,9 @@ export default function AedScreen() {
       />
       {!query.loading &&
         !query.error &&
-        buildings.map((building) => <BuildingCard key={building.id} building={building} />)}
+        buildings.map(({ item, meters }) => (
+          <BuildingCard key={item.id} building={item} meters={meters} initiallyExpanded={item.id === params.building} />
+        ))}
       <Text style={styles.source}>Source: BU AED list</Text>
     </EmergencyScreen>
   );
@@ -153,6 +182,7 @@ const styles = StyleSheet.create({
   buildingCopy: { flex: 1, gap: 4 },
   buildingName: { color: '#2d2926', fontSize: 17, fontWeight: '700' },
   count: { color: '#577e28', fontSize: 14, fontWeight: '700' },
+  distance: { color: '#aa2c3b', fontSize: 14, fontWeight: '600' },
   chevron: { fontSize: 25, color: '#2d2926' },
   aed: { borderTopWidth: 1, borderTopColor: '#e1e4e5', paddingHorizontal: 16, paddingVertical: 12, gap: 4 },
   note: { color: '#363230', fontSize: 16, lineHeight: 22, fontWeight: '600' },

@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { EmergencyIcon, emergencyPresentation } from '@/components/emergency/icon';
+import { NearbyBuildings } from '@/components/emergency/nearby-buildings';
 import { DataState, EmergencyScreen, ui } from '@/components/emergency/screen';
 import { useEmergencyTypes } from '@/hooks/use-emergency-data';
 
@@ -11,6 +12,7 @@ export default function HomeScreen() {
   const types = [...(query.data ?? [])].sort((a, b) => rank(a.id) - rank(b.id) || a.sort_order - b.sort_order);
   return (
     <EmergencyScreen>
+      <NearbyBuildings />
       <Text accessibilityRole="header" style={[ui.title, styles.heading]}>
         Select an Emergency
       </Text>

@@ -30,6 +30,8 @@ const buildings = [
     name: 'Fitness and Recreation Center',
     address: '915 Commonwealth Avenue',
     campus: 'CRC',
+    latitude: 42.35182,
+    longitude: -71.116462,
     aeds: [
       { id: '501-01-111', floor: '01', room: '111', location_note: 'Inside Weight Room near 111', sort_order: 1 },
       { id: '501-B-B02', floor: 'B', room: 'B02', location_note: 'Near the pool entrance', sort_order: 2 },
@@ -40,6 +42,8 @@ const buildings = [
     name: '890 Commonwealth Avenue',
     address: '890 Commonwealth Avenue',
     campus: 'CRC',
+    latitude: 42.350502,
+    longitude: -71.115617,
     aeds: [{ id: '627-01-100', floor: '01', room: '100', location_note: 'Main lobby', sort_order: 1 }],
   },
   {
@@ -47,13 +51,15 @@ const buildings = [
     name: 'T-Bldg - Talbot Building',
     address: '715 Albany Street',
     campus: 'MED',
+    latitude: 42.335781,
+    longitude: -71.071689,
     aeds: [{ id: '909-01-100', floor: '01', room: '100', location_note: 'Outside the elevators', sort_order: 1 }],
   },
 ];
 const ready = <T,>(data: T) => ({ data, loading: false, error: undefined, reload: jest.fn() });
-const located = (campus?: 'CRC' | 'MED'): CurrentLocation => ({
+const located = (campus?: 'CRC' | 'MED', latitude = 0, longitude = 0): CurrentLocation => ({
   status: 'ready',
-  coords: { latitude: 0, longitude: 0, accuracy: 10 },
+  coords: { latitude, longitude, accuracy: 10 },
   campus,
   refresh: jest.fn(),
 });
@@ -64,6 +70,7 @@ beforeEach(() => {
   jest.mocked(useCurrentLocation).mockReturnValue({ status: 'loading', refresh: jest.fn() });
   jest.mocked(useEmergencyTypes).mockReturnValue(ready([]));
   jest.mocked(useGuidanceSteps).mockReturnValue(ready([]));
+  jest.mocked(useLocalSearchParams).mockReturnValue({});
 });
 
 const step = (step_order: number, link: string | null) => ({
@@ -135,4 +142,24 @@ it('filters buildings by name or address', async () => {
 
   await fireEvent.changeText(screen.getByLabelText('Search buildings'), 'nowhere');
   expect(screen.getByText('No buildings on this campus match "nowhere".')).toBeTruthy();
+});
+
+it('lists the closest buildings first, with their distance, once the location is known', async () => {
+  // Outside 890 Commonwealth Avenue, about 140 m from FitRec.
+  jest.mocked(useCurrentLocation).mockReturnValue(located('CRC', 42.3505, -71.1157));
+  await render(<AedScreen />);
+  const names = screen
+    .getAllByRole('button', { name: /Commonwealth Avenue/ })
+    .map((b) => b.props.accessibilityLabel)
+    .filter((label) => !label.startsWith('Your current location')); // the header names the nearest building
+  expect(names[0]).toMatch(/^890 Commonwealth Avenue, 10 m away/);
+  expect(names[1]).toMatch(/^Fitness and Recreation Center, 915 Commonwealth Avenue, \d+ m away/);
+  expect(screen.getByText(/Closest buildings are listed first/)).toBeTruthy();
+});
+
+it('opens on the building chosen from the home screen map', async () => {
+  jest.mocked(useLocalSearchParams).mockReturnValue({ building: '909' });
+  await render(<AedScreen />);
+  expect(screen.getByRole('tab', { name: 'Medical' }).props.accessibilityState).toEqual({ selected: true });
+  expect(screen.getByText('Outside the elevators')).toBeTruthy();
 });

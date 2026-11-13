@@ -11,6 +11,7 @@ import type { Contact } from '@/services/emergency-data';
 jest.setTimeout(15000);
 
 jest.mock('@/hooks/use-emergency-data', () => ({
+  useAedBuildings: () => ({ data: [], loading: false, error: undefined, reload: jest.fn() }),
   useContacts: jest.fn(),
   useEmergencyTypes: jest.fn(),
   useGuidanceSteps: jest.fn(),
