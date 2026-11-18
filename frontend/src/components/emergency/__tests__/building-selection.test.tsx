@@ -29,6 +29,8 @@ const building: AedBuilding = {
   name: 'Test Medical Building',
   address: '123 Test Street',
   campus: 'MED',
+  latitude: null,
+  longitude: null,
   aeds: [{ id: 'aed1', floor: '01', room: '102', location_note: 'Test lobby', sort_order: 1 }],
 };
 const ready = <T,>(data: T) => ({ data, loading: false, error: undefined, reload: jest.fn() });

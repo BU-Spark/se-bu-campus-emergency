@@ -120,6 +120,8 @@ describe('getAedBuildings', () => {
           name: 'FitRec',
           address: '915 Commonwealth Avenue',
           campus: 'CRC',
+          latitude: 42.35182,
+          longitude: -71.116462,
           aeds: [aed('b', 2), aed('a', 1)],
         },
       ],
@@ -130,6 +132,7 @@ describe('getAedBuildings', () => {
     expect(building.aeds.map((a) => a.id)).toEqual(['a', 'b']);
     expect(mockFrom).toHaveBeenCalledWith('buildings');
     expect(query.select).toHaveBeenCalledWith(expect.stringContaining('aeds('));
+    expect(query.select).toHaveBeenCalledWith(expect.stringContaining('latitude, longitude'));
     expect(query.order).toHaveBeenCalledWith('name', { ascending: true });
   });
 

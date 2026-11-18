@@ -1,0 +1,522 @@
+{
+  "203": {
+    "address": "560 Harrison Avenue",
+    "latitude": 42.340647,
+    "longitude": -71.067328,
+    "precision": "address",
+    "match": "560, Harrison Avenue, South End, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "412": {
+    "address": "85 East Newton Street",
+    "latitude": 42.336276,
+    "longitude": -71.070852,
+    "precision": "address",
+    "match": "Solomon Carter Fuller Mental Health Center, 85, East Newton Street, South End, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "501": {
+    "address": "915 Commonwealth Avenue",
+    "latitude": 42.35182,
+    "longitude": -71.116462,
+    "precision": "address",
+    "match": "Boston University Fitness & Recreation Center, 915, Commonwealth Avenue, Allston, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "502": {
+    "address": "635 Albany Street",
+    "latitude": 42.336343,
+    "longitude": -71.069671,
+    "precision": "address",
+    "match": "635, Albany Street, South End, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "503": {
+    "address": "925 Commonwealth Avenue",
+    "latitude": 42.352749,
+    "longitude": -71.117343,
+    "precision": "address",
+    "match": "925, Commonwealth Avenue, Allston, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "521": {
+    "address": "118 Bay State Road",
+    "latitude": 42.349975,
+    "longitude": -71.098635,
+    "precision": "address",
+    "match": "118, Bay State Road, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "551": {
+    "address": "264-270 Bay State Road",
+    "latitude": 42.350782,
+    "longitude": -71.10524,
+    "precision": "address",
+    "match": "School of Social Work, 264, Bay State Road, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "561": {
+    "address": "765 Commonwealth Avenue",
+    "latitude": 42.351064,
+    "longitude": -71.107507,
+    "precision": "address",
+    "match": "Sumner M. Redstone Building, 765, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "571": {
+    "address": "233 Bay State Road",
+    "latitude": 42.350861,
+    "longitude": -71.103867,
+    "precision": "address",
+    "match": "Alan & Sherry Leventhal Center, 233, Bay State Road, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "575": {
+    "address": "213 Bay State Road",
+    "latitude": 42.350757,
+    "longitude": -71.103146,
+    "precision": "address",
+    "match": "Florence Chasetz Hillel House, 213, Bay State Road, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "579": {
+    "address": "25 Buick Street",
+    "latitude": 42.351958,
+    "longitude": -71.11517,
+    "precision": "address",
+    "match": "25, Buick Street, Allston, Boston, Suffolk County, Massachusetts, 02446, United States",
+    "source": "nominatim"
+  },
+  "596": {
+    "address": "640 Commonwealth Avenue",
+    "latitude": 42.348845,
+    "longitude": -71.102318,
+    "precision": "address",
+    "match": "640, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "597": {
+    "address": "635 Commonwealth Avenue",
+    "latitude": 42.349821,
+    "longitude": -71.102007,
+    "precision": "address",
+    "match": "College of Health & Rehabilitation Sciences: Sargent College, 631;635, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "599": {
+    "address": "675-725 Commonwealth Avenue",
+    "latitude": 42.3501,
+    "longitude": -71.103838,
+    "precision": "address",
+    "match": "Stone Science Building, 675, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "600": {
+    "address": "33 Harry Agganis Way",
+    "latitude": 42.353285,
+    "longitude": -71.117798,
+    "precision": "address",
+    "match": "Student Village Phase Two, 33, Harry Agganis Way, Allston, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "605": {
+    "address": "111 Cummington Mall",
+    "latitude": 42.349091,
+    "longitude": -71.104146,
+    "precision": "address",
+    "match": "Mathematics & Computer Science Departments, 111, Cummington Mall, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "607": {
+    "address": "700 Commonwealth Avenue",
+    "latitude": 42.349224,
+    "longitude": -71.10312,
+    "precision": "address",
+    "match": "700, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "608": {
+    "address": "610 Commonwealth Avenue",
+    "latitude": 42.349058,
+    "longitude": -71.101534,
+    "precision": "address",
+    "match": "Center for Integrated Life Sciences and Engineering, 610, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "610": {
+    "address": "704 Commonwealth Avenue",
+    "latitude": 42.349456,
+    "longitude": -71.105267,
+    "precision": "address",
+    "match": "704, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "614": {
+    "address": "745-755 Commonwealth Avenue",
+    "latitude": 42.350524,
+    "longitude": -71.107545,
+    "precision": "address",
+    "match": "School of Theology, 745, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "619": {
+    "address": "771 Commonwealth Avenue",
+    "latitude": 42.351012,
+    "longitude": -71.107992,
+    "precision": "address",
+    "match": "Mugar Memorial Library, 771, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "621": {
+    "address": "775 Commonwealth Avenue",
+    "latitude": 42.350967,
+    "longitude": -71.108976,
+    "precision": "address",
+    "match": "George Sherman Union, 775, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "623": {
+    "address": "1 University Road",
+    "latitude": 42.351009,
+    "longitude": -71.109831,
+    "precision": "address",
+    "match": "Boston University Academy, 1, University Road, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "625": {
+    "address": "820 Commonwealth Avenue",
+    "latitude": 42.350105,
+    "longitude": -71.112444,
+    "precision": "address",
+    "match": "Joan & Edgar Booth Theatre, 820, Commonwealth Avenue, Allston, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "626": {
+    "address": "855 Commonwealth Avenue",
+    "latitude": 42.351294,
+    "longitude": -71.113877,
+    "precision": "address",
+    "match": "College of Fine Arts, 855, Commonwealth Avenue, Allston, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "627": {
+    "address": "890 Commonwealth Avenue",
+    "latitude": 42.350502,
+    "longitude": -71.115617,
+    "precision": "address",
+    "match": "890, Commonwealth Avenue, Allston, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "630": {
+    "address": "928 Commonwealth Avenue",
+    "latitude": 42.35088,
+    "longitude": -71.117508,
+    "precision": "address",
+    "match": "School of Hospitality Administration (SHA), 928, Commonwealth Avenue, Allston, Boston, Suffolk County, Massachusetts, 02446, United States",
+    "source": "nominatim"
+  },
+  "632": {
+    "address": "881 Commonwealth Avenue",
+    "latitude": 42.351452,
+    "longitude": -71.115259,
+    "precision": "address",
+    "match": "881, Commonwealth Avenue, Allston, Boston, Suffolk County, Massachusetts, 02446, United States",
+    "source": "nominatim"
+  },
+  "639": {
+    "address": "80 East Concord Street",
+    "latitude": 42.335601,
+    "longitude": -71.072061,
+    "precision": "address",
+    "match": "80, East Concord Street, South End, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "643": {
+    "address": "24 Cummington Mall",
+    "latitude": 42.348336,
+    "longitude": -71.101739,
+    "precision": "address",
+    "match": "Life Science and Engineering Building, 24, Cummington Mall, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "647": {
+    "address": "590 Commonwealth Avenue",
+    "latitude": 42.348452,
+    "longitude": -71.100163,
+    "precision": "address",
+    "match": "Metcalf Science Center, 590, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "668": {
+    "address": "509 Park Drive",
+    "latitude": 42.347855,
+    "longitude": -71.105451,
+    "precision": "address",
+    "match": "509, Park Drive, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "675": {
+    "address": "75 East Newton Street",
+    "latitude": 42.336563,
+    "longitude": -71.071666,
+    "precision": "address",
+    "match": "Evans, 75, East Newton Street, South End, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "677": {
+    "address": "10 Lenox Street",
+    "latitude": 42.348783,
+    "longitude": -71.109917,
+    "precision": "address",
+    "match": "BU Children's Center, 10, Lenox Street, North Brookline, Brookline, Norfolk County, Massachusetts, 02446, United States",
+    "source": "nominatim"
+  },
+  "684": {
+    "address": "808 Commonwealth Avenue",
+    "latitude": 42.350132,
+    "longitude": -71.111401,
+    "precision": "address",
+    "match": "808, Commonwealth Avenue, Allston, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "686": {
+    "address": "72 East Concord Street",
+    "latitude": 42.336418,
+    "longitude": -71.073023,
+    "precision": "address",
+    "match": "72, East Concord Street, South End, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "689": {
+    "address": "778 Harrison Avenue",
+    "latitude": 42.336846,
+    "longitude": -71.072913,
+    "precision": "address",
+    "match": "778, Harrison Avenue, South End, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "705": {
+    "address": "750 Harrison Avenue",
+    "latitude": 42.33735,
+    "longitude": -71.072001,
+    "precision": "address",
+    "match": "750, Harrison Avenue, South End, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "714": {
+    "address": "100 Bay State Road",
+    "latitude": 42.349787,
+    "longitude": -71.097941,
+    "precision": "address",
+    "match": "Yawkey Center for Student Services, 100, Bay State Road, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "717": {
+    "address": "665 Commonwealth Avenue",
+    "latitude": 42.350023,
+    "longitude": -71.103111,
+    "precision": "address",
+    "match": "Center for Computing & Data Sciences Building, 665, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "723": {
+    "address": "285 Babcock Street",
+    "latitude": 42.354067,
+    "longitude": -71.120307,
+    "precision": "address",
+    "match": "Case Physical Education Center, 285, Babcock Street, Packard's Corner, Allston, Boston, Suffolk County, Massachusetts, 02134, United States",
+    "source": "nominatim"
+  },
+  "751": {
+    "address": "512 Beacon Street",
+    "latitude": 42.350887,
+    "longitude": -71.090303,
+    "precision": "address",
+    "match": "Danielson Hall, 512, Beacon Street, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02115, United States",
+    "source": "nominatim"
+  },
+  "754": {
+    "address": "730 Commonwealth Avenue",
+    "latitude": 42.349721,
+    "longitude": -71.107503,
+    "precision": "address",
+    "match": "730;736;738;740;744, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "758": {
+    "address": "120 Ashford Street",
+    "latitude": 42.354448,
+    "longitude": -71.122313,
+    "precision": "address",
+    "match": "120, Ashford Street, Packard's Corner, Allston, Boston, Suffolk County, Massachusetts, 02134, United States",
+    "source": "nominatim"
+  },
+  "761": {
+    "address": "8 St. Mary's Street",
+    "latitude": 42.349204,
+    "longitude": -71.106109,
+    "precision": "address",
+    "match": "Photonics Center, 8, Saint Mary's Street, North Brookline, Boston, Norfolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "762": {
+    "address": "100 Ashford Street",
+    "latitude": 42.354557,
+    "longitude": -71.12355,
+    "precision": "address",
+    "match": "Boston University Track & Tennis Center, 100, Ashford Street, Packard's Corner, Allston, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "791": {
+    "address": "300 Babcock Street",
+    "latitude": 42.354296,
+    "longitude": -71.121226,
+    "precision": "address",
+    "match": "300, Babcock Street, Packard's Corner, Allston, Boston, Suffolk County, Massachusetts, 02134, United States",
+    "source": "nominatim"
+  },
+  "816": {
+    "address": "595 Commonwealth Avenue",
+    "latitude": 42.34964,
+    "longitude": -71.099732,
+    "precision": "address",
+    "match": "Questrom School of Business, 595, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "817": {
+    "address": "71 East Concord Street",
+    "latitude": 42.336306,
+    "longitude": -71.073186,
+    "precision": "address",
+    "match": "71, East Concord Street, South End, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "827": {
+    "address": "985 Commonwealth Avenue",
+    "latitude": 42.352122,
+    "longitude": -71.120241,
+    "precision": "address",
+    "match": "985, Commonwealth Avenue, Packard's Corner, Allston, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "895": {
+    "address": "609 Albany Street",
+    "latitude": 42.337031,
+    "longitude": -71.068989,
+    "precision": "address",
+    "match": "609, Albany Street, South End, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "899": {
+    "address": "900 Commonwealth Avenue",
+    "latitude": 42.350807,
+    "longitude": -71.11619,
+    "precision": "address",
+    "match": "CVS Pharmacy, 900, Commonwealth Avenue, Allston, Brookline, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "904": {
+    "address": "700 Albany Street",
+    "latitude": 42.335492,
+    "longitude": -71.070212,
+    "precision": "address",
+    "match": "Center for Advanced Biomedical Research, 700, Albany Street, South End, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "909": {
+    "address": "715 Albany Street",
+    "latitude": 42.335781,
+    "longitude": -71.071689,
+    "precision": "address",
+    "match": "715, Albany Street, South End, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "923": {
+    "address": "650 Albany Street",
+    "latitude": 42.336018,
+    "longitude": -71.069475,
+    "precision": "address",
+    "match": "Evans Biomedical Research Center, 650, Albany Street, South End, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "927": {
+    "address": "670 Albany Street",
+    "latitude": 42.335202,
+    "longitude": -71.069843,
+    "precision": "address",
+    "match": "670, Albany Street, South End, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "934": {
+    "address": "801 Massachusetts Avenue",
+    "latitude": 42.333024,
+    "longitude": -71.073513,
+    "precision": "address",
+    "match": "Crosstown Center, 801, Massachusetts Avenue, Roxbury, Boston, Suffolk County, Massachusetts, 02118, United States",
+    "source": "nominatim"
+  },
+  "952": {
+    "address": "163-179 Amory Street",
+    "latitude": 42.350111,
+    "longitude": -71.113765,
+    "precision": "address",
+    "match": "163,167,169,171,173, Amory Street, North Brookline, Brookline, Norfolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "957": {
+    "address": "275 Babcock Street",
+    "latitude": 42.352919,
+    "longitude": -71.120532,
+    "precision": "address",
+    "match": "Sleeper Hall, 275, Babcock Street, Packard's Corner, Allston, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "958": {
+    "address": "277 Babcock Street",
+    "latitude": 42.353481,
+    "longitude": -71.120632,
+    "precision": "address",
+    "match": "Rich Hall, 277, Babcock Street, Packard's Corner, Allston, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "962": {
+    "address": "750 Commonwealth Avenue",
+    "latitude": 42.349796,
+    "longitude": -71.108031,
+    "precision": "address",
+    "match": "Boston University Engineering Product Innovation Center, 750;766, Commonwealth Avenue, Audubon Circle, Fenway-Kenmore, Cambridge, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "964": {
+    "address": "930-940 Commonwealth Avenue",
+    "latitude": 42.350893,
+    "longitude": -71.117797,
+    "precision": "address",
+    "match": "930, Commonwealth Avenue, Allston, Boston, Suffolk County, Massachusetts, 02446, United States",
+    "source": "nominatim"
+  },
+  "971": {
+    "address": "180-200 Riverway",
+    "latitude": 42.341955,
+    "longitude": -71.106064,
+    "precision": "address",
+    "match": "Activities Building, 180, Riverway, Longwood, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "975": {
+    "address": "150 Riverway",
+    "latitude": 42.342985,
+    "longitude": -71.105195,
+    "precision": "address",
+    "match": "Campus Center and Student Residence, 150, Riverway, Longwood, Boston, Suffolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  },
+  "976": {
+    "address": "43 Hawes Street",
+    "latitude": 42.343728,
+    "longitude": -71.109735,
+    "precision": "address",
+    "match": "Boston University Brookline Campus, 43, Hawes Street, North Brookline, Brookline, Norfolk County, Massachusetts, 02215, United States",
+    "source": "nominatim"
+  }
+}

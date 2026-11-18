@@ -11,6 +11,8 @@ import { useContacts, useEmergencyTypes, useGuidanceSteps } from '@/hooks/use-em
 jest.setTimeout(15000);
 
 jest.mock('@/hooks/use-emergency-data', () => ({
+  // The home screen's nearby-buildings card stays hidden while buildings load (covered in nearby.test.tsx).
+  useAedBuildings: () => ({ data: undefined, loading: true, error: undefined, reload: jest.fn() }),
   useContacts: jest.fn(),
   useEmergencyTypes: jest.fn(),
   useGuidanceSteps: jest.fn(),

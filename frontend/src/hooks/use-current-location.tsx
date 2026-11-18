@@ -1,5 +1,6 @@
 import * as Location from 'expo-location';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { Platform } from 'react-native';
 
 import { findCampus, type Campus, type Point } from '@/lib/campus';
 
@@ -37,6 +38,9 @@ async function currentPosition(): Promise<Location.LocationObject | null> {
 
 /** A short street address such as "881 Commonwealth Avenue", or undefined if lookup fails (e.g. on web). */
 async function streetAddress(point: Point): Promise<string | undefined> {
+  // expo-location can't look up addresses on web (it only logs a warning), so the header names the
+  // nearest BU building there instead.
+  if (Platform.OS === 'web') return undefined;
   try {
     const [place] = await Location.reverseGeocodeAsync(point);
     if (!place) return undefined;
