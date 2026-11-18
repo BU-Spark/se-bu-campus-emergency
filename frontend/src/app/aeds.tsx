@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { DirectionsLink } from '@/components/emergency/contact-card';
 import { DataState, EmergencyScreen, ui } from '@/components/emergency/screen';
 import { useCurrentLocation } from '@/hooks/use-current-location';
@@ -12,6 +12,7 @@ const campusTabs = [
   ['CRC', 'Charles River'],
   ['FEN', 'Fenway'],
   ['MED', 'Medical'],
+  ['Non BU', 'Non BU'],
 ] as const;
 type AedCampus = (typeof campusTabs)[number][0];
 
@@ -43,7 +44,9 @@ function BuildingCard({
   initiallyExpanded?: boolean;
 }) {
   const [expanded, setExpanded] = useState(initiallyExpanded);
-  const count = `${building.aeds.length} AED${building.aeds.length === 1 ? '' : 's'}`;
+  const count = building.aeds.length
+    ? `${building.aeds.length} AED${building.aeds.length === 1 ? '' : 's'}`
+    : 'AED info pending';
   const showAddress = building.address !== building.name;
   const distance = meters === undefined ? undefined : `${formatDistance(meters)} away`;
   return (
@@ -70,6 +73,13 @@ function BuildingCard({
       {expanded && (
         <>
           <DirectionsLink address={building.address} />
+          {building.aeds.length === 0 && (
+            <View style={styles.aed}>
+              <Text style={styles.detail}>
+                No verified AED locations are currently listed for this building. This does not mean no AED is present.
+              </Text>
+            </View>
+          )}
           {building.aeds.map((aed) => (
             <AedRow key={aed.id} aed={aed} />
           ))}
@@ -79,14 +89,29 @@ function BuildingCard({
   );
 }
 export default function AedScreen() {
+  const params = useLocalSearchParams<{ building?: string | string[] }>();
+  const buildingId = Array.isArray(params.building) ? params.building[0] : params.building;
+  // A new map destination must reset old search/campus choices and expansion state.
+  return <AedDirectory key={buildingId ?? 'directory'} buildingId={buildingId} />;
+}
+
+function AedDirectory({ buildingId }: { buildingId?: string }) {
   const query = useAedBuildings();
   const location = useCurrentLocation();
-  const params = useLocalSearchParams<{ building?: string }>();
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollFrame = useRef<ReturnType<typeof requestAnimationFrame> | undefined>(undefined);
+  const didScroll = useRef(false);
+  useEffect(
+    () => () => {
+      if (scrollFrame.current !== undefined) cancelAnimationFrame(scrollFrame.current);
+    },
+    []
+  );
   const [chosenCampus, setChosenCampus] = useState<AedCampus>();
   const [search, setSearch] = useState('');
   // A building opened from the home screen's map picks its campus; otherwise follow the user's location
   // until they pick a campus themselves.
-  const openedBuilding = query.data?.find((building) => building.id === params.building);
+  const openedBuilding = query.data?.find((building) => building.id === buildingId);
   const detectedCampus = location.status === 'ready' ? location.campus : undefined;
   const campus: AedCampus = chosenCampus ?? (openedBuilding?.campus as AedCampus) ?? detectedCampus ?? 'CRC';
   const term = search.trim().toLowerCase();
@@ -105,7 +130,7 @@ export default function AedScreen() {
       : matching.map((item) => ({ item }));
   const buildings: { item: AedBuilding; meters?: number }[] = sorted;
   return (
-    <EmergencyScreen back>
+    <EmergencyScreen back scrollRef={scrollRef}>
       <Text accessibilityRole="header" style={ui.title}>
         Find an AED
       </Text>
@@ -146,7 +171,27 @@ export default function AedScreen() {
       {!query.loading &&
         !query.error &&
         buildings.map(({ item, meters }) => (
-          <BuildingCard key={item.id} building={item} meters={meters} initiallyExpanded={item.id === params.building} />
+          <View
+            key={item.id}
+            testID={`aed-building-${item.id}`}
+            onLayout={
+              item.id === buildingId
+                ? (event) => {
+                    if (didScroll.current) return;
+                    const y = event.nativeEvent.layout.y;
+                    if (scrollFrame.current !== undefined) cancelAnimationFrame(scrollFrame.current);
+                    // Wait for the expanded card and scroll content to finish their layout.
+                    scrollFrame.current = requestAnimationFrame(() => {
+                      if (!scrollRef.current) return;
+                      scrollRef.current.scrollTo({ y: Math.max(0, y - 12), animated: false });
+                      didScroll.current = true;
+                    });
+                  }
+                : undefined
+            }
+          >
+            <BuildingCard building={item} meters={meters} initiallyExpanded={item.id === buildingId} />
+          </View>
         ))}
       <Text style={styles.source}>Source: BU AED list</Text>
     </EmergencyScreen>

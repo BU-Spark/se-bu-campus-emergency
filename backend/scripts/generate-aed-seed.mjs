@@ -32,7 +32,7 @@ const buildingRow = (b) => {
 };
 
 const output = `-- GENERATED FILE: do not edit by hand.
--- Source: supabase/data/aed-list.csv (BU AED list) and supabase/data/building-coordinates.json.
+-- Source: supabase/data/aed-list.csv, supabase/data/additional-buildings.json and supabase/data/building-coordinates.json.
 -- Regenerate with: node scripts/generate-aed-seed.mjs
 -- ${buildings.size} buildings, ${aeds.length} AEDs.${skipped.length ? `\n-- Skipped (site code not mapped to a BU campus): ${skipped.join('; ')}` : ''}${missing.length ? `\n-- Buildings without coordinates: ${missing.join(', ')}` : ''}
 --
@@ -56,7 +56,7 @@ on conflict (id) do update set
   location_note = excluded.location_note,
   sort_order    = excluded.sort_order;
 
--- Remove AEDs and buildings that are no longer in the spreadsheet.
+-- Remove AEDs and buildings that are no longer in either maintained source list.
 delete from public.aeds where id not in (${aeds.map((a) => sql(a.id)).join(', ')});
 delete from public.buildings where id not in (${[...buildings.keys()].map(sql).join(', ')});
 `;

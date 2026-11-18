@@ -8,9 +8,9 @@ import { fileURLToPath } from 'node:url';
 export const supabaseDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'supabase');
 const csvPath = join(supabaseDir, 'data', 'aed-list.csv');
 
-// Site codes in the spreadsheet → campus codes used by the app. Rows with other codes (e.g. 'Non BU')
-// are skipped and reported, so they can be checked with the client before being shown.
-const campusBySite = { CRC: 'CRC', FEN: 'FEN', BUMC: 'MED' };
+// Preserve the spreadsheet's Non BU classification rather than assigning a BU campus.
+// Unknown site codes are still skipped and reported.
+const campusBySite = { CRC: 'CRC', FEN: 'FEN', BUMC: 'MED', 'Non BU': 'Non BU' };
 
 /** Minimal RFC 4180 CSV parser (handles quoted fields, escaped quotes, and commas inside quotes). */
 function parseCsv(text) {
@@ -115,6 +115,20 @@ export function readAedList() {
       note: value('note'),
       sortOrder,
     });
+  }
+  // Buildings requested by the client need not have an entry in the AED inventory.
+  // Include them in both geocoding and seed generation without inventing AED records.
+  const additional = JSON.parse(readFileSync(join(supabaseDir, 'data', 'additional-buildings.json'), 'utf8'));
+  for (const building of additional) {
+    if (!building.id || !building.name || !building.address || !['CRC', 'MED', 'FEN'].includes(building.campus)) {
+      throw new Error('Invalid supplemental building');
+    }
+    if (buildings.has(building.id)) throw new Error(`Duplicate supplemental building ID: ${building.id}`);
+    if ([...buildings.values()].some((existing) => existing.address.toLowerCase() === building.address.toLowerCase())) {
+      throw new Error(`Supplemental building address already exists in the AED inventory: ${building.address}`);
+    }
+    const { id, name, address, campus } = building;
+    buildings.set(id, { id, name, address, campus });
   }
   return { buildings, aeds, skipped };
 }

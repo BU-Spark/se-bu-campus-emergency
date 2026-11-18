@@ -1,5 +1,6 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import { ScrollView } from 'react-native';
 
 import AedScreen from '@/app/aeds';
 import GuidanceScreen from '@/app/emergency/[id]';
@@ -162,4 +163,91 @@ it('opens on the building chosen from the home screen map', async () => {
   await render(<AedScreen />);
   expect(screen.getByRole('tab', { name: 'Medical' }).props.accessibilityState).toEqual({ selected: true });
   expect(screen.getByText('Outside the elevators')).toBeTruthy();
+});
+
+it('scrolls to the expanded map destination after building data loads, without repeatedly jumping', async () => {
+  const scroll = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(() => {});
+  try {
+    jest.mocked(useLocalSearchParams).mockReturnValue({ building: '909' });
+    jest.mocked(useAedBuildings).mockReturnValue({ ...ready(buildings), data: undefined, loading: true });
+    const view = await render(<AedScreen />);
+    expect(scroll).not.toHaveBeenCalled();
+    jest.mocked(useAedBuildings).mockReturnValue(ready(buildings));
+    await view.rerender(<AedScreen />);
+    expect(screen.getByText('Outside the elevators')).toBeTruthy();
+    await fireEvent(screen.getByTestId('aed-building-909'), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 900, width: 350, height: 180 } },
+    });
+    await waitFor(() => expect(scroll).toHaveBeenCalledWith({ y: 888, animated: false }));
+    await fireEvent(screen.getByTestId('aed-building-909'), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 910, width: 350, height: 180 } },
+    });
+    expect(scroll).toHaveBeenCalledTimes(1);
+  } finally {
+    scroll.mockRestore();
+  }
+});
+
+it('clears old filters and expands the new building when the map destination changes', async () => {
+  jest.mocked(useLocalSearchParams).mockReturnValue({ building: '501' });
+  const view = await render(<AedScreen />);
+  await fireEvent.changeText(screen.getByLabelText('Search buildings'), 'fitness');
+  jest.mocked(useLocalSearchParams).mockReturnValue({ building: ['909'] });
+  await view.rerender(<AedScreen />);
+  expect(screen.getByLabelText('Search buildings').props.value).toBe('');
+  expect(screen.getByRole('tab', { name: 'Medical' }).props.accessibilityState).toEqual({ selected: true });
+  expect(screen.getByText('Outside the elevators')).toBeTruthy();
+});
+
+it('shows the Non BU building and its source AED details in its own tab', async () => {
+  jest.mocked(useAedBuildings).mockReturnValue(
+    ready([
+      ...buildings,
+      {
+        id: '649',
+        name: '677 Beacon Street',
+        address: '677 Beacon Street',
+        campus: 'Non BU',
+        latitude: null,
+        longitude: null,
+        aeds: [{ id: '649-01-180', floor: '01', room: '180', location_note: 'Main lobby', sort_order: 1 }],
+      },
+    ])
+  );
+  jest.mocked(useCurrentLocation).mockReturnValue(located('CRC', 42.3505, -71.1157));
+  await render(<AedScreen />);
+  expect(screen.queryByText('677 Beacon Street')).toBeNull();
+  await fireEvent.press(screen.getByRole('tab', { name: 'Non BU' }));
+  await fireEvent.changeText(screen.getByLabelText('Search buildings'), '677 Beacon');
+  await fireEvent.press(screen.getByRole('button', { name: '677 Beacon Street, 1 AED' }));
+  expect(screen.getByText('Main lobby')).toBeTruthy();
+  expect(screen.getByText('Floor 1 · Room 180')).toBeTruthy();
+});
+
+it('keeps MET searchable without coordinates and distinguishes missing AED data from no AEDs', async () => {
+  jest.mocked(useAedBuildings).mockReturnValue(
+    ready([
+      ...buildings,
+      {
+        id: 'met-1010-commonwealth',
+        name: 'Metropolitan College (MET)',
+        address: '1010 Commonwealth Avenue',
+        campus: 'CRC',
+        latitude: null,
+        longitude: null,
+        aeds: [],
+      },
+    ])
+  );
+  jest.mocked(useCurrentLocation).mockReturnValue(located('CRC', 42.3505, -71.1157));
+  await render(<AedScreen />);
+  await fireEvent.changeText(screen.getByLabelText('Search buildings'), 'MET');
+  expect(screen.getByText('Metropolitan College (MET)')).toBeTruthy();
+  expect(screen.getByText('AED info pending')).toBeTruthy();
+  expect(screen.queryByText('0 AEDs')).toBeNull();
+  await fireEvent.press(screen.getByRole('button', { name: /Metropolitan College/ }));
+  expect(screen.getByText(/No verified AED locations are currently listed/)).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Directions to 1010 Commonwealth Avenue' })).toBeTruthy();
+  await fireEvent.changeText(screen.getByLabelText('Search buildings'), '1010');
+  expect(screen.getByText('Metropolitan College (MET)')).toBeTruthy();
 });

@@ -36,10 +36,25 @@ export default function HomeScreen() {
           ))}
         </View>
       )}
+      <View style={styles.resources}>
+        <Text accessibilityRole="header" style={styles.resourceTitle}>
+          Building resources
+        </Text>
+        <Text style={ui.body}>Browse buildings and AED locations by campus.</Text>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push('/aeds')}
+          style={({ pressed }) => [ui.darkButton, pressed && ui.pressed]}
+        >
+          <Text style={ui.helpText}>Find an AED</Text>
+        </Pressable>
+      </View>
     </EmergencyScreen>
   );
 }
 const styles = StyleSheet.create({
+  resources: { padding: 16, backgroundColor: '#fff', borderRadius: 12, gap: 12 },
+  resourceTitle: { color: '#2d2926', fontSize: 20, fontWeight: '700' },
   heading: { textAlign: 'center', marginTop: 6 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 20, paddingVertical: 24 },
   card: {

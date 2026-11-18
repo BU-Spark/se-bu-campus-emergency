@@ -37,6 +37,29 @@ Every row stores its `source_url`. See the header of `seed.sql` for the small wo
 
 ## Updating AED data
 
+Building 649 (677 Beacon Street) is included with its original `Non BU` classification.
+Its AED is on floor `01`, room `180`, with the location note `Main lobby`.
+Apply `20261118000000_add_non_bu_aed.sql` to extend the building campus constraint
+and upsert this building and AED without replacing other records. The frontend
+lists it under the `Non BU` tab. Coordinates remain unverified, so no map pin or
+distance is shown yet. The source CSV and seed generator also retain this record.
+For this update, use `npx supabase db push` from the linked `backend/` directory
+after reviewing pending migrations; a full seed reload is not required.
+
+Supplemental buildings absent from the AED spreadsheet are maintained in
+`supabase/data/additional-buildings.json`, with a source URL and verification notes.
+Both the geocoder and seed generator include them. Do not add placeholder AED rows.
+If the AED inventory later includes the same address, reconcile the supplemental ID
+with its official building code before regenerating the seed.
+
+MET (Metropolitan College), 1010 Commonwealth Avenue, is included in this list.
+Its coordinates and AED locations are not yet verified; it is searchable in the
+building directory after applying migration `20261117000000_add_met_building.sql`,
+but has no map pin or distance until coordinates are supplied.
+For an existing linked Supabase project, run `npx supabase db push` from `backend/`
+after reviewing pending migrations. This is a local code change until the migration
+is applied to the shared database; restarting Expo alone does not apply it.
+
 AED locations come from the BU AED list (Google Sheet). Building coordinates come from geocoding each
 building's address with [OpenStreetMap Nominatim](https://nominatim.org) and are saved in
 `supabase/data/building-coordinates.json`. From the `backend/` directory:

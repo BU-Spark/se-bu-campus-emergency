@@ -1,0 +1,10 @@
+[
+  {
+    "id": "met-1010-commonwealth",
+    "name": "Metropolitan College (MET)",
+    "address": "1010 Commonwealth Avenue",
+    "campus": "CRC",
+    "source_url": "https://www.bu.edu/met/contact/",
+    "note": "Supplemental building; official facilities code, coordinates and AED locations have not been verified. ID is an application identifier, not a BU facilities code."
+  }
+]

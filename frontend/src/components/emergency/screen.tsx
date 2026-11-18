@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCurrentLocation, type CurrentLocation } from '@/hooks/use-current-location';
@@ -13,12 +13,14 @@ export function EmergencyScreen({
   back = false,
   help = true,
   emergency,
+  scrollRef,
 }: {
   children: ReactNode;
   back?: boolean;
   help?: boolean;
   /** Emergency type whose contacts "Call for Help" should show; all contacts when omitted. */
   emergency?: string;
+  scrollRef?: Ref<ScrollView>;
 }) {
   return (
     <SafeAreaView style={ui.safe}>
@@ -29,7 +31,7 @@ export function EmergencyScreen({
             <Text style={ui.brandText}>BOSTON{'\n'}UNIVERSITY</Text>
           </View>
         </View>
-        <ScrollView contentContainerStyle={ui.content}>
+        <ScrollView ref={scrollRef} contentContainerStyle={ui.content}>
           {back && (
             <Pressable
               accessibilityRole="button"
